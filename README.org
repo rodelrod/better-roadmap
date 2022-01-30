@@ -1,0 +1,10 @@
+#+TITLE: README
+* Purpose
+Create a Gantt chart-y longterm roadmap for a Scrum project.
+* Installation
+Dependencies for SciPy (via Pandas):
+: sudo apt-get install gfortran libopenblas-dev liblapack-dev python-dev
+* Architecture
+- Plotly
+- Flask
+- Yaml config files: =features.yml= and =parameters.yml=
