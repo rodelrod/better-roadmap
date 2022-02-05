@@ -16,6 +16,8 @@ flake8 = "^4.0.1"
 black = "^22.1.0"
 flake8-bugbear = "^22.1.11"
 ipython = "^8.0.1"
+pytest = "^6.2.5"
+isort = "^5.10.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
