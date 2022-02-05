@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -9,45 +11,53 @@ FEATURES_FILE = Path("data", "features.yml")
 PARAMETERS_FILE = Path("data", "parameters.yml")
 
 
+@dataclass
+class FeatureSpan:
+    """Scheduled span for a Feature to be developed, ready to be put in the Roadmap."""
+
+    feature: str
+    start: datetime
+    end: datetime
+    phase: str
+
+
 def main():
     df = pd.DataFrame(
         [
-            dict(
-                Feature="Internal Blast",
-                Start="2021-10-01",
-                Finish="2021-10-15",
-                Resource="UX",
+            FeatureSpan(
+                feature="Internal Blast",
+                start=datetime(2021, 10, 1),
+                end=datetime(2021, 10, 15),
+                phase="UX",
             ),
-            dict(
-                Feature="Internal Blast",
-                Start="2021-10-21",
-                Finish="2021-10-28",
-                Resource="Conception",
+            FeatureSpan(
+                feature="Internal Blast",
+                start=datetime(2021, 10, 21),
+                end=datetime(2021, 10, 28),
+                phase="Conception",
             ),
-            dict(
-                Feature="Internal Blast",
-                Start="2021-11-05",
-                Finish="2021-11-20",
-                Resource="Dev",
+            FeatureSpan(
+                feature="Internal Blast",
+                start=datetime(2021, 11, 5),
+                end=datetime(2021, 11, 20),
+                phase="Dev",
             ),
-            dict(
-                Feature="Authentication",
-                Start="2021-10-01",
-                Finish="2021-10-07",
-                Resource="Conception",
+            FeatureSpan(
+                feature="Authentication",
+                start=datetime(2021, 10, 1),
+                end=datetime(2021, 10, 7),
+                phase="Conception",
             ),
-            dict(
-                Feature="Authentication",
-                Start="2021-10-28",
-                Finish="2021-11-05",
-                Resource="Dev",
+            FeatureSpan(
+                feature="Authentication",
+                start=datetime(2021, 10, 28),
+                end=datetime(2021, 11, 5),
+                phase="Dev",
             ),
         ]
     )
 
-    fig = px.timeline(
-        df, x_start="Start", x_end="Finish", y="Feature", color="Resource"
-    )
+    fig = px.timeline(df, x_start="start", x_end="end", y="feature", color="phase")
     fig.update_yaxes(autorange="reversed")
     fig.show()
 
