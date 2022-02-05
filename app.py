@@ -26,7 +26,7 @@ class FreeSlots:
 
     MAX_GAP_BETWEEN_CONCEPTION_AND_DEV = 4
     MIN_GAP_BETWEEN_CONCEPTION_AND_DEV = 2
-    MIN_GAP_BETWEEN_UX_AND_CONCEPTION = 1
+    MIN_GAP_BETWEEN_UX_AND_CONCEPTION = 0
 
     def __init__(
         self, ux_max_concurrency=1, conception_max_concurrency=2, dev_max_concurrency=2
@@ -42,8 +42,8 @@ class FreeSlots:
         """Take Conception as soon as possible but not too early."""
         return max(
             # not too early before Dev, so that it does not need to be redone
-            self.next_dev_slot() - self.MAX_GAP_BETWEEN_CONCEPTION_AND_DEV,
-            min(
+            min(self._next_dev_slots) - self.MAX_GAP_BETWEEN_CONCEPTION_AND_DEV,
+            max(
                 # in the first available conception slot…
                 min(self._next_conception_slots),
                 # …as long as it's after UX is done
@@ -53,13 +53,14 @@ class FreeSlots:
             ),
         )
 
-    def next_dev_slot(self):
+    def next_dev_slot(self, ux_estimation):
         """Start dev in the next slot available but only if gap with conception is respected"""
         return max(
             # in the first available slot…
             min(self._next_dev_slots),
             # …as long as the conception is done
-            min(self._next_conception_slots) + self.MIN_GAP_BETWEEN_CONCEPTION_AND_DEV,
+            self.next_conception_slot(ux_estimation)
+            + self.MIN_GAP_BETWEEN_CONCEPTION_AND_DEV,
         )
 
 
