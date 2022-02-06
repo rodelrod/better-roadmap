@@ -87,7 +87,7 @@ class TestScheduleFeature:
         def test_ux_estimation_2_and_dev_estimation_4(self):
             free_slots_empty = sut.FreeSlots()
             assert free_slots_empty.schedule_feature(
-                ux_estimation=2, dev_estimation=4
+                Feature(name="Skynet", ux_estimation=2, dev_estimation=4)
             ) == sut.ScheduledSprintSpans(
                 ux=sut.ScheduledSprintSpan(1, 2),
                 conception=sut.ScheduledSprintSpan(3, 3),

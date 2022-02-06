@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -8,20 +7,11 @@ import plotly.express as px
 import yaml
 
 from free_slots import FreeSlots
+from feature import Feature, FeatureSpan
 
 FEATURES_FILE = Path("data", "features.yml")
 PARAMETERS_FILE = Path("data", "parameters.yml")
 PROJECT_START = datetime(2021, 10, 1)
-
-
-@dataclass
-class FeatureSpan:
-    """Scheduled span for a Feature to be developed, ready to be put in the Roadmap."""
-
-    feature: str
-    start: datetime
-    end: datetime
-    phase: str
 
 
 def main():
@@ -65,9 +55,10 @@ def main():
     fig.show()
 
 
-def parse_features() -> dict:
+def parse_features() -> list[Feature]:
     with FEATURES_FILE.open() as features_file:
-        features = yaml.load(features_file, Loader=yaml.SafeLoader)
+        feature_dicts = yaml.load(features_file, Loader=yaml.SafeLoader)
+    features = [Feature.from_dict(d) for d in feature_dicts]
     return features
 
 
