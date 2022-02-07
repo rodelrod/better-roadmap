@@ -70,3 +70,21 @@ class FeatureDateSpans:
             dev=DateSpan.from_sprint_span(sprint_spans.dev, project_start),
         )
 
+    def get_graph_segments(self) -> list[GraphSegment]:
+        return [
+            GraphSegment(
+                feature=self.feature, start=self.ux.start, end=self.ux.end, phase="UX"
+            ),
+            GraphSegment(
+                feature=self.feature,
+                start=self.conception.start,
+                end=self.conception.end,
+                phase="Conception",
+            ),
+            GraphSegment(
+                feature=self.feature,
+                start=self.dev.start,
+                end=self.dev.end,
+                phase="Dev",
+            ),
+        ]

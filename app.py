@@ -8,7 +8,7 @@ import yaml
 
 from free_slots import FreeSlots
 from feature import Feature
-from span import GraphSegment
+from span import FeatureDateSpans, GraphSegment
 
 FEATURES_FILE = Path("data", "features.yml")
 PARAMETERS_FILE = Path("data", "parameters.yml")
@@ -16,40 +16,12 @@ PROJECT_START = datetime(2021, 10, 1)
 
 
 def main():
-    df = pd.DataFrame(
-        [
-            GraphSegment(
-                feature="Internal Blast",
-                start=datetime(2021, 10, 1),
-                end=datetime(2021, 10, 15),
-                phase="UX",
-            ),
-            GraphSegment(
-                feature="Internal Blast",
-                start=datetime(2021, 10, 21),
-                end=datetime(2021, 10, 28),
-                phase="Conception",
-            ),
-            GraphSegment(
-                feature="Internal Blast",
-                start=datetime(2021, 11, 5),
-                end=datetime(2021, 11, 20),
-                phase="Dev",
-            ),
-            GraphSegment(
-                feature="Authentication",
-                start=datetime(2021, 10, 1),
-                end=datetime(2021, 10, 7),
-                phase="Conception",
-            ),
-            GraphSegment(
-                feature="Authentication",
-                start=datetime(2021, 10, 28),
-                end=datetime(2021, 11, 5),
-                phase="Dev",
-            ),
-        ]
-    )
+    graph_segments = []
+    free_slots = FreeSlots()
+    for feature in parse_features():
+        graph_segments.extend(schedule_feature(feature, free_slots))
+
+    df = pd.DataFrame(graph_segments)
 
     fig = px.timeline(df, x_start="start", x_end="end", y="feature", color="phase")
     fig.update_yaxes(autorange="reversed")
@@ -63,6 +35,17 @@ def parse_features() -> list[Feature]:
     return features
 
 
+def schedule_feature(
+    feature: Feature, free_slots: FreeSlots = None
+) -> list[GraphSegment]:
+    # TODO allow features with default start date
+    if not free_slots:
+        free_slots = FreeSlots()
+    feature_sprint_spans = free_slots.schedule_feature(feature)
+    feature_data_spans = FeatureDateSpans.from_feature_sprint_spans(
+        feature_sprint_spans, project_start=PROJECT_START
+    )
+    return feature_data_spans.get_graph_segments()
 
 
 if __name__ == "__main__":
