@@ -1,21 +1,12 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
 
 from feature import Feature
+from span import ScheduledSprintSpan, ScheduledSprintSpans
 from utils import replace_min
 
 
 class ArgumentError(Exception):
     pass
-
-
-def sprint_to_start_date(sprint: int, project_start: datetime) -> datetime:
-    # Sprint numbers are 1-based. To get the sprint start date we need to subtract 1.
-    return project_start + timedelta(weeks=(sprint - 1))
-
-
-def sprint_to_end_date(sprint: int, project_start: datetime) -> datetime:
-    return project_start + timedelta(weeks=sprint)
 
 
 @dataclass
@@ -30,19 +21,6 @@ class FreeSlotsGaps:
     max_gap_between_conception_and_dev: int = 3
     min_gap_between_conception_and_dev: int = 1
     min_gap_between_ux_and_conception: int = 0
-
-
-@dataclass
-class ScheduledSprintSpan:
-    start: int
-    end: int
-
-
-@dataclass
-class ScheduledSprintSpans:
-    ux: ScheduledSprintSpan
-    conception: ScheduledSprintSpan
-    dev: ScheduledSprintSpan
 
 
 class FreeSlots:
