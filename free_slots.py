@@ -65,6 +65,7 @@ class FreeSlots:
         replace_min(self._next_dev_slots, dev_end + 1)
 
         return FeatureSprintSpans(
+            feature=feature.name,
             ux=SprintSpan(start=ux_start, end=ux_end),
             conception=SprintSpan(start=conception_start, end=conception_end),
             dev=SprintSpan(start=dev_start, end=dev_end),

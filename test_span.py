@@ -18,11 +18,13 @@ class TestSprintToDate:
 class TestScheduledSpan:
     def test_sprint_to_date_spans(self):
         sss = sut.FeatureSprintSpans(
+            feature="Skynet",
             ux=sut.SprintSpan(1, 3),
             conception=sut.SprintSpan(4, 4),
             dev=sut.SprintSpan(6, 8),
         )
         sts = sut.FeatureDateSpans(
+            feature="Skynet",
             ux=sut.DateSpan(datetime(2022, 1, 6), datetime(2022, 1, 27)),
             conception=sut.DateSpan(datetime(2022, 1, 27), datetime(2022, 2, 3)),
             dev=sut.DateSpan(datetime(2022, 2, 10), datetime(2022, 3, 3)),

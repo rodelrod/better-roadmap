@@ -12,6 +12,16 @@ def sprint_to_end_date(sprint: int, project_start: datetime) -> datetime:
 
 
 @dataclass
+class GraphSegment:
+    """Scheduled span for a Feature to be developed, ready to be put in the Roadmap."""
+
+    feature: str
+    start: datetime
+    end: datetime
+    phase: str
+
+
+@dataclass
 class SprintSpan:
     start: int
     end: int
@@ -19,6 +29,7 @@ class SprintSpan:
 
 @dataclass
 class FeatureSprintSpans:
+    feature: str
     ux: SprintSpan
     conception: SprintSpan
     dev: SprintSpan
@@ -41,6 +52,7 @@ class DateSpan:
 
 @dataclass
 class FeatureDateSpans:
+    feature: str
     ux: DateSpan
     conception: DateSpan
     dev: DateSpan
@@ -50,6 +62,7 @@ class FeatureDateSpans:
         cls, sprint_spans: FeatureSprintSpans, project_start: datetime
     ):
         return cls(
+            feature=sprint_spans.feature,
             ux=DateSpan.from_sprint_span(sprint_spans.ux, project_start),
             conception=DateSpan.from_sprint_span(
                 sprint_spans.conception, project_start
@@ -57,12 +70,3 @@ class FeatureDateSpans:
             dev=DateSpan.from_sprint_span(sprint_spans.dev, project_start),
         )
 
-
-@dataclass
-class GraphSegment:
-    """Scheduled span for a Feature to be developed, ready to be put in the Roadmap."""
-
-    feature: str
-    start: datetime
-    end: datetime
-    phase: str
