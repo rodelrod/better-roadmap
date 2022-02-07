@@ -7,7 +7,8 @@ import plotly.express as px
 import yaml
 
 from free_slots import FreeSlots
-from feature import Feature, FeatureSpan
+from feature import Feature
+from span import GraphSegment
 
 FEATURES_FILE = Path("data", "features.yml")
 PARAMETERS_FILE = Path("data", "parameters.yml")
@@ -17,31 +18,31 @@ PROJECT_START = datetime(2021, 10, 1)
 def main():
     df = pd.DataFrame(
         [
-            FeatureSpan(
+            GraphSegment(
                 feature="Internal Blast",
                 start=datetime(2021, 10, 1),
                 end=datetime(2021, 10, 15),
                 phase="UX",
             ),
-            FeatureSpan(
+            GraphSegment(
                 feature="Internal Blast",
                 start=datetime(2021, 10, 21),
                 end=datetime(2021, 10, 28),
                 phase="Conception",
             ),
-            FeatureSpan(
+            GraphSegment(
                 feature="Internal Blast",
                 start=datetime(2021, 11, 5),
                 end=datetime(2021, 11, 20),
                 phase="Dev",
             ),
-            FeatureSpan(
+            GraphSegment(
                 feature="Authentication",
                 start=datetime(2021, 10, 1),
                 end=datetime(2021, 10, 7),
                 phase="Conception",
             ),
-            FeatureSpan(
+            GraphSegment(
                 feature="Authentication",
                 start=datetime(2021, 10, 28),
                 end=datetime(2021, 11, 5),

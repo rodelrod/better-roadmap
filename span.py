@@ -12,27 +12,25 @@ def sprint_to_end_date(sprint: int, project_start: datetime) -> datetime:
 
 
 @dataclass
-class ScheduledSprintSpan:
+class SprintSpan:
     start: int
     end: int
 
 
 @dataclass
-class ScheduledSprintSpans:
-    ux: ScheduledSprintSpan
-    conception: ScheduledSprintSpan
-    dev: ScheduledSprintSpan
+class FeatureSprintSpans:
+    ux: SprintSpan
+    conception: SprintSpan
+    dev: SprintSpan
 
 
 @dataclass
-class ScheduledDateSpan:
+class DateSpan:
     start: datetime
     end: datetime
 
     @classmethod
-    def from_scheduled_sprint_span(
-        cls, sprint_span: ScheduledSprintSpan, project_start: datetime
-    ):
+    def from_sprint_span(cls, sprint_span: SprintSpan, project_start: datetime):
         return cls(
             start=sprint_to_start_date(
                 sprint=sprint_span.start, project_start=project_start
@@ -42,23 +40,29 @@ class ScheduledDateSpan:
 
 
 @dataclass
-class ScheduledDateSpans:
-    ux: ScheduledDateSpan
-    conception: ScheduledDateSpan
-    dev: ScheduledDateSpan
+class FeatureDateSpans:
+    ux: DateSpan
+    conception: DateSpan
+    dev: DateSpan
 
     @classmethod
-    def from_scheduled_sprint_spans(
-        cls, sprint_spans: ScheduledSprintSpans, project_start: datetime
+    def from_feature_sprint_spans(
+        cls, sprint_spans: FeatureSprintSpans, project_start: datetime
     ):
         return cls(
-            ux=ScheduledDateSpan.from_scheduled_sprint_span(
-                sprint_spans.ux, project_start
-            ),
-            conception=ScheduledDateSpan.from_scheduled_sprint_span(
+            ux=DateSpan.from_sprint_span(sprint_spans.ux, project_start),
+            conception=DateSpan.from_sprint_span(
                 sprint_spans.conception, project_start
             ),
-            dev=ScheduledDateSpan.from_scheduled_sprint_span(
-                sprint_spans.dev, project_start
-            ),
+            dev=DateSpan.from_sprint_span(sprint_spans.dev, project_start),
         )
+
+
+@dataclass
+class GraphSegment:
+    """Scheduled span for a Feature to be developed, ready to be put in the Roadmap."""
+
+    feature: str
+    start: datetime
+    end: datetime
+    phase: str

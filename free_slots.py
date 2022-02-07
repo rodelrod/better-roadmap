@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from feature import Feature
-from span import ScheduledSprintSpan, ScheduledSprintSpans
+from span import SprintSpan, FeatureSprintSpans
 from utils import replace_min
 
 
@@ -52,7 +52,7 @@ class FreeSlots:
             else:
                 setattr(self, f"_next_{phase}_slots", state[phase])
 
-    def schedule_feature(self, feature: Feature) -> ScheduledSprintSpans:
+    def schedule_feature(self, feature: Feature) -> FeatureSprintSpans:
         ux_start = self.get_next_ux_slot()
         ux_end = ux_start + feature.ux_estimation - 1
         conception_start = self.get_next_conception_slot(feature.ux_estimation)
@@ -64,10 +64,10 @@ class FreeSlots:
         replace_min(self._next_conception_slots, conception_end + 1)
         replace_min(self._next_dev_slots, dev_end + 1)
 
-        return ScheduledSprintSpans(
-            ux=ScheduledSprintSpan(start=ux_start, end=ux_end),
-            conception=ScheduledSprintSpan(start=conception_start, end=conception_end),
-            dev=ScheduledSprintSpan(start=dev_start, end=dev_end),
+        return FeatureSprintSpans(
+            ux=SprintSpan(start=ux_start, end=ux_end),
+            conception=SprintSpan(start=conception_start, end=conception_end),
+            dev=SprintSpan(start=dev_start, end=dev_end),
         )
 
     def _get_slot_index(self, phase: str, sprint: int):

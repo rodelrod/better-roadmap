@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Optional
 
 
@@ -16,13 +15,3 @@ class Feature:
     @classmethod
     def from_dict(cls, d: dict):
         return cls(**d)
-
-
-@dataclass
-class FeatureSpan:
-    """Scheduled span for a Feature to be developed, ready to be put in the Roadmap."""
-
-    feature: str
-    start: datetime
-    end: datetime
-    phase: str
