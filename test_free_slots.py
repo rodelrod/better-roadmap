@@ -96,3 +96,15 @@ class TestScheduleFeature:
             assert free_slots_empty._next_ux_slots == [3]
             assert free_slots_empty._next_conception_slots == [4, 1]
             assert free_slots_empty._next_dev_slots == [9, 1]
+
+
+class TestSprintToDate:
+    def test_sprint_to_start_date(self):
+        assert sut.sprint_to_start_date(
+            sprint=3, project_start=datetime(2022, 1, 6)
+        ) == datetime(2022, 1, 20)
+
+    def test_sprint_to_end_date(self):
+        assert sut.sprint_to_end_date(
+            sprint=3, project_start=datetime(2022, 1, 6)
+        ) == datetime(2022, 1, 27)

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 
 from feature import Feature
 from utils import replace_min
@@ -6,6 +7,15 @@ from utils import replace_min
 
 class ArgumentError(Exception):
     pass
+
+
+def sprint_to_start_date(sprint: int, project_start: datetime) -> datetime:
+    # Sprint numbers are 1-based. To get the sprint start date we need to subtract 1.
+    return project_start + timedelta(weeks=(sprint - 1))
+
+
+def sprint_to_end_date(sprint: int, project_start: datetime) -> datetime:
+    return project_start + timedelta(weeks=sprint)
 
 
 @dataclass

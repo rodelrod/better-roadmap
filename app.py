@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -62,11 +62,6 @@ def parse_features() -> list[Feature]:
     return features
 
 
-def sprint_to_start_date(
-    sprint: int, project_start: datetime = PROJECT_START
-) -> datetime:
-    # Sprint numbers are 1-based. To get the sprint start date we need to subtract 1.
-    return project_start + timedelta(weeks=(sprint - 1))
 
 
 if __name__ == "__main__":
