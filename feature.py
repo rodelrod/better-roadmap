@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from config import Config
+
 
 @dataclass
-class Feature:
+class Feature(Config):
     name: str
     ux_estimation: int
     dev_estimation: int
@@ -11,7 +13,3 @@ class Feature:
     ux_scheduled_sprint: Optional[int] = None
     conception_scheduled_sprint: Optional[int] = None
     dev_scheduled_sprint: Optional[int] = None
-
-    @classmethod
-    def from_dict(cls, d: dict):
-        return cls(**d)
