@@ -8,6 +8,7 @@ import yaml
 
 from free_slots import FreeSlots
 from feature import Feature
+from parameters import Parameters, Phase, Sprint
 from span import FeatureDateSpans, GraphSegment
 
 FEATURES_FILE = Path("data", "features.yml")
@@ -17,7 +18,8 @@ PROJECT_START = datetime(2021, 10, 1)
 
 def main():
     graph_segments = []
-    free_slots = FreeSlots()
+    parameters = parse_parameters()
+    free_slots = FreeSlots(parameters)
     for feature in parse_features():
         graph_segments.extend(schedule_feature(feature, free_slots))
 
@@ -35,10 +37,23 @@ def parse_features() -> list[Feature]:
     return features
 
 
+def parse_parameters() -> Parameters:
+    with PARAMETERS_FILE.open() as parameters_file:
+        parameters_dict = yaml.load(parameters_file, Loader=yaml.SafeLoader)
+    parameters = Parameters.from_dict(
+        {
+            "project_start": parameters_dict["project_start"],
+            "default_sprint_duration": parameters_dict["default_sprint_duration"],
+            "phases": [Phase.from_dict(p) for p in parameters_dict["phases"]],
+            "sprints": [Sprint.from_dict(s) for s in parameters_dict["sprints"]],
+        }
+    )
+    return parameters
+
+
 def schedule_feature(
     feature: Feature, free_slots: FreeSlots = None
 ) -> list[GraphSegment]:
-    # TODO allow features with default start date
     if not free_slots:
         free_slots = FreeSlots()
     feature_sprint_spans = free_slots.schedule_feature(feature)

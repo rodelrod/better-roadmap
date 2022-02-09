@@ -1,68 +1,55 @@
-from dataclasses import dataclass
+import logging
 
 from feature import Feature
-from span import SprintSpan, FeatureSprintSpans
+from parameters import DEFAULT_PARAMETERS, Parameters, Phase, Sprint
+from span import FeatureSprintSpans, SprintSpan
 from utils import replace_min
+
+log = logging.getLogger(__name__)
 
 
 class ArgumentError(Exception):
     pass
 
 
-@dataclass
-class FreeSlotsMaxConcurrency:
-    ux: int = 1
-    conception: int = 2
-    dev: int = 2
-
-
-@dataclass
-class FreeSlotsGaps:
-    max_gap_between_conception_and_dev: int = 3
-    min_gap_between_conception_and_dev: int = 1
-    min_gap_between_ux_and_conception: int = 0
-
-
 class FreeSlots:
     """Keep track of the latest sprints for each phase."""
 
-    CONCEPTION_ESTIMATION = 1
-
     def __init__(
         self,
-        max_concurrency: FreeSlotsMaxConcurrency = None,
-        gaps: FreeSlotsGaps = None,
+        params: Parameters = DEFAULT_PARAMETERS,
         initial_state: dict[str, list[int]] = None,
     ) -> None:
-        self.max_concurrency = max_concurrency or FreeSlotsMaxConcurrency()
-        self.gaps = gaps or FreeSlotsGaps()
-        if not initial_state:
-            self._next_ux_slots = [1] * self.max_concurrency.ux
-            self._next_conception_slots = [1] * self.max_concurrency.conception
-            self._next_dev_slots = [1] * self.max_concurrency.dev
+        self.params = params
+        if initial_state and self._state_is_valid(params, initial_state):
+            self._next_slots = initial_state
         else:
-            self._set_state(initial_state)
+            self._next_slots = {}
+            for phase in params.phases:
+                self._next_slots[phase.name] = [1] * phase.max_concurrency
 
-    def _set_state(self, state: dict[str, list[int]]) -> None:
-        for phase in ["ux", "conception", "dev"]:
-            if len(state[phase]) != getattr(self.max_concurrency, phase):
-                raise ArgumentError(
-                    "State dictionary contains the wrong number of slots for one of the phases."
+    @staticmethod
+    def _state_is_valid(params: Parameters, state: dict[str, list[int]]) -> bool:
+        for phase in params.phases:
+            if len(state.get(phase.name, [])) != phase.max_concurrency:
+                log.warning(
+                    f"Initial state malformed: '{phase.name}' has {len(state.get(phase.name, []))}"
+                    f" slots instead of {phase.max_concurrency}."
                 )
-            else:
-                setattr(self, f"_next_{phase}_slots", state[phase])
+                return False
+        return True
 
     def schedule_feature(self, feature: Feature) -> FeatureSprintSpans:
         ux_start = self.get_next_ux_slot()
-        ux_end = ux_start + feature.ux_estimation - 1
-        conception_start = self.get_next_conception_slot(feature.ux_estimation)
-        conception_end = conception_start + self.CONCEPTION_ESTIMATION - 1
-        dev_start = self.get_next_dev_slot(feature.ux_estimation)
-        dev_end = dev_start + feature.dev_estimation - 1
+        ux_end = ux_start + feature.estimations["ux"] - 1
+        conception_start = self.get_next_conception_slot(feature)
+        conception_end = conception_start + feature.estimations.get("conception", 1) - 1
+        dev_start = self.get_next_dev_slot(feature)
+        dev_end = dev_start + feature.estimations["dev"] - 1
 
-        replace_min(self._next_ux_slots, ux_end + 1)
-        replace_min(self._next_conception_slots, conception_end + 1)
-        replace_min(self._next_dev_slots, dev_end + 1)
+        replace_min(self._next_slots["ux"], ux_end + 1)
+        replace_min(self._next_slots["conception"], conception_end + 1)
+        replace_min(self._next_slots["dev"], dev_end + 1)
 
         return FeatureSprintSpans(
             feature=feature.name,
@@ -75,32 +62,42 @@ class FreeSlots:
         return getattr(self, f"_next_{phase}_slots").index(sprint)
 
     def get_next_ux_slot(self) -> int:
-        return min(self._next_ux_slots)
+        return min(self._next_slots["ux"])
 
-    def get_next_conception_slot(self, ux_estimation: int) -> int:
+    def get_next_conception_slot(self, feature: Feature) -> int:
         """Take Conception as soon as possible but not too early."""
+        conception_params = Phase("conception", 2, 0, 3)
+        for phase in self.params.phases:
+            if phase.name == "conception":
+                conception_params = phase
+                break
         return max(
             # not too early before Dev, so that it does not need to be redone
-            min(self._next_dev_slots)
-            - self.gaps.max_gap_between_conception_and_dev
-            - self.CONCEPTION_ESTIMATION,
+            min(self._next_slots["dev"])
+            - (conception_params.max_gap_after or 0)
+            - feature.estimations.get("conception", 1),
             max(
                 # in the first available conception slot…
-                min(self._next_conception_slots),
+                min(self._next_slots["conception"]),
                 # …as long as it's after UX is done
                 self.get_next_ux_slot()
-                + ux_estimation
-                + self.gaps.min_gap_between_ux_and_conception,
+                + feature.estimations["ux"]
+                + conception_params.min_gap_before,
             ),
         )
 
-    def get_next_dev_slot(self, ux_estimation: int) -> int:
+    def get_next_dev_slot(self, feature: Feature) -> int:
         """Start dev in the next slot available but only if gap with conception is respected"""
+        dev_params = Phase("dev", 2, 1)
+        for phase in self.params.phases:
+            if phase.name == "dev":
+                dev_params = phase
+                break
         return max(
             # in the first available slot…
-            min(self._next_dev_slots),
+            min(self._next_slots["dev"]),
             # …as long as the conception is done
-            self.get_next_conception_slot(ux_estimation)
-            + self.CONCEPTION_ESTIMATION
-            + self.gaps.min_gap_between_conception_and_dev,
+            self.get_next_conception_slot(feature)
+            + feature.estimations.get("conception", 1)
+            + dev_params.min_gap_before,
         )

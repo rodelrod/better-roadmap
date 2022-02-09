@@ -8,11 +8,11 @@ from config import Config
 @dataclass
 class Phase(Config):
     name: str
-    valid_from: datetime
     max_concurrency: int
-    min_gap: int
-    max_gap: Optional[int] = None
+    min_gap_before: int
+    max_gap_after: Optional[int] = None
     default_estimation: Optional[int] = None
+    valid_from_sprint: int = 1
 
 
 @dataclass
@@ -26,4 +26,15 @@ class Parameters(Config):
     project_start: datetime
     default_sprint_duration: int
     phases: list[Phase]
-    sprints: list[Sprint]
+    sprints: Optional[list[Sprint]] = None
+
+
+DEFAULT_PARAMETERS = Parameters(
+    datetime(2022, 10, 1),
+    1,
+    phases=[
+        Phase("ux", 1, 0),
+        Phase("conception", 2, 0, 3),
+        Phase("dev", 2, 1),
+    ],
+)

@@ -5,25 +5,23 @@ import feature as sut
 
 class TestFeatureFromDict:
     def test_simple_feature(self):
-        d = {"name": "Skynet", "ux_estimation": 2, "dev_estimation": 3}
+        d = {"name": "Skynet", "estimations": {"ux": 2, "dev": 3}}
         assert sut.Feature.from_dict(d) == sut.Feature(
-            name="Skynet", ux_estimation=2, dev_estimation=3
+            name="Skynet", estimations={"ux": 2, "dev": 3}
         )
 
     def test_complex_feature(self):
         d = {
             "name": "Skynet",
-            "ux_estimation": 2,
-            "dev_estimation": 3,
-            "conception_estimation": 2,
-            "dev_scheduled_sprint": 13,
+            "estimations": {"ux": 2, "dev": 3, "conception": 2},
+            "real_start": {"dev": 13},
+            "real_duration": {"dev": 2},
         }
         assert sut.Feature.from_dict(d) == sut.Feature(
             name="Skynet",
-            ux_estimation=2,
-            dev_estimation=3,
-            conception_estimation=2,
-            dev_scheduled_sprint=13,
+            estimations={"ux": 2, "dev": 3, "conception": 2},
+            real_start={"dev": 13},
+            real_duration={"dev": 2},
         )
 
     def test_malformed_dict_raises(self):
