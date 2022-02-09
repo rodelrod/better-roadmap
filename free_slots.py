@@ -3,12 +3,13 @@ import logging
 from feature import Feature
 from parameters import DEFAULT_PARAMETERS, Parameters, Phase, Sprint
 from span import FeatureSprintSpans, SprintSpan
+from sys import maxsize
 from utils import replace_min
 
 log = logging.getLogger(__name__)
 
 
-class ArgumentError(Exception):
+class ConfigurationError(Exception):
     pass
 
 
@@ -40,64 +41,48 @@ class FreeSlots:
         return True
 
     def schedule_feature(self, feature: Feature) -> FeatureSprintSpans:
-        ux_start = self.get_next_ux_slot()
-        ux_end = ux_start + feature.estimations["ux"] - 1
-        conception_start = self.get_next_conception_slot(feature)
-        conception_end = conception_start + feature.estimations.get("conception", 1) - 1
-        dev_start = self.get_next_dev_slot(feature)
-        dev_end = dev_start + feature.estimations["dev"] - 1
+        sprint_spans, _ = self._schedule_phase(feature, self.params.phases, 0)
 
-        replace_min(self._next_slots["ux"], ux_end + 1)
-        replace_min(self._next_slots["conception"], conception_end + 1)
-        replace_min(self._next_slots["dev"], dev_end + 1)
+        for phase_name in sprint_spans:
+            replace_min(self._next_slots[phase_name], sprint_spans[phase_name].end + 1)
 
         return FeatureSprintSpans(
             feature=feature.name,
-            ux=SprintSpan(start=ux_start, end=ux_end),
-            conception=SprintSpan(start=conception_start, end=conception_end),
-            dev=SprintSpan(start=dev_start, end=dev_end),
+            ux=sprint_spans["ux"],
+            conception=sprint_spans["conception"],
+            dev=sprint_spans["dev"],
         )
 
-    def _get_slot_index(self, phase: str, sprint: int):
-        return getattr(self, f"_next_{phase}_slots").index(sprint)
-
-    def get_next_ux_slot(self) -> int:
-        return min(self._next_slots["ux"])
-
-    def get_next_conception_slot(self, feature: Feature) -> int:
-        """Take Conception as soon as possible but not too early."""
-        conception_params = Phase("conception", 2, 0, 3)
-        for phase in self.params.phases:
-            if phase.name == "conception":
-                conception_params = phase
-                break
-        return max(
-            # not too early before Dev, so that it does not need to be redone
-            min(self._next_slots["dev"])
-            - (conception_params.max_gap_after or 0)
-            - feature.estimations.get("conception", 1),
-            max(
-                # in the first available conception slot…
-                min(self._next_slots["conception"]),
-                # …as long as it's after UX is done
-                self.get_next_ux_slot()
-                + feature.estimations["ux"]
-                + conception_params.min_gap_before,
-            ),
+    def _schedule_phase(
+        self,
+        feature: Feature,
+        phase_list: list[Phase],
+        prev_end: int,
+    ) -> tuple[dict[str, SprintSpan], int]:
+        if not phase_list:
+            return ({}, maxsize)
+        cur_phase, next_phases = phase_list[0], phase_list[1:]
+        estimation = self._get_estimation(feature, cur_phase)
+        phase_name = cur_phase.name
+        min_available_slot = min(self._next_slots[phase_name])
+        min_start = max(prev_end + cur_phase.min_gap_before + 1, min_available_slot)
+        min_end = min_start + estimation - 1
+        next_sprint_spans, next_start = self._schedule_phase(
+            feature, next_phases, min_end
         )
+        if cur_phase.max_gap_after:
+            end = max(min_end, next_start - cur_phase.max_gap_after)
+        else:
+            end = min_end
+        start = end - estimation + 1
+        return (next_sprint_spans | {phase_name: SprintSpan(start, end)}, start)
 
-    def get_next_dev_slot(self, feature: Feature) -> int:
-        """Start dev in the next slot available but only if gap with conception is respected"""
-        dev_params = Phase("dev", 2, 1)
-        for phase in self.params.phases:
-            if phase.name == "dev":
-                dev_params = phase
-                break
-        return max(
-            # in the first available slot…
-            min(self._next_slots["dev"]),
-            # …as long as the conception is done
-            self.get_next_conception_slot(feature)
-            + feature.estimations.get("conception", 1)
-            + dev_params.min_gap_before,
+    def _get_estimation(self, feature: Feature, phase: Phase) -> int:
+        if phase.name in feature.estimations:
+            return feature.estimations[phase.name]
+        if phase.default_estimation:
+            return phase.default_estimation
+        raise ConfigurationError(
+            f"Could not find an estimation for phase '{phase.name}'"
+            f" in feature '{feature.name}'."
         )

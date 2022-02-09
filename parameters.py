@@ -34,7 +34,7 @@ DEFAULT_PARAMETERS = Parameters(
     1,
     phases=[
         Phase("ux", 1, 0),
-        Phase("conception", 2, 0, 3),
+        Phase("conception", 2, 0, 3, 1),
         Phase("dev", 2, 1),
     ],
 )
