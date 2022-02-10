@@ -6,7 +6,7 @@ import pandas as pd
 import plotly.express as px
 import yaml
 
-from free_slots import FreeSlots
+from scheduler import Scheduler
 from feature import Feature
 from parameters import Parameters, Phase, Sprint
 from span import FeatureDateSpans, GraphSegment
@@ -19,9 +19,9 @@ PROJECT_START = datetime(2021, 10, 1)
 def main():
     graph_segments = []
     parameters = parse_parameters()
-    free_slots = FreeSlots(parameters)
+    scheduler = Scheduler(parameters)
     for feature in parse_features():
-        graph_segments.extend(schedule_feature(feature, free_slots))
+        graph_segments.extend(schedule_feature(feature, scheduler))
 
     df = pd.DataFrame(graph_segments)
 
@@ -52,11 +52,11 @@ def parse_parameters() -> Parameters:
 
 
 def schedule_feature(
-    feature: Feature, free_slots: FreeSlots = None
+    feature: Feature, scheduler: Scheduler = None
 ) -> list[GraphSegment]:
-    if not free_slots:
-        free_slots = FreeSlots()
-    feature_sprint_spans = free_slots.schedule_feature(feature)
+    if not scheduler:
+        scheduler = Scheduler()
+    feature_sprint_spans = scheduler.schedule_feature(feature)
     feature_data_spans = FeatureDateSpans.from_feature_sprint_spans(
         feature_sprint_spans, project_start=PROJECT_START
     )

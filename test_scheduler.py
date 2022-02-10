@@ -1,7 +1,5 @@
-import pytest
-
 from datetime import datetime
-import free_slots as sut
+import scheduler as sut
 
 
 def _feature(ux_estimation):
@@ -17,7 +15,7 @@ class TestStateIsValid:
             params = sut.Parameters(
                 datetime(2020, 1, 1), 1, [sut.Phase("ux", 1, 0), sut.Phase("dev", 1, 0)]
             )
-            assert not sut.FreeSlots._state_is_valid(
+            assert not sut.Scheduler._state_is_valid(
                 params,
                 state={"ux": [1, 1], "dev": [1]},
             )
@@ -26,7 +24,7 @@ class TestStateIsValid:
             params = sut.Parameters(
                 datetime(2020, 1, 1), 1, [sut.Phase("ux", 1, 0), sut.Phase("dev", 4, 0)]
             )
-            assert not sut.FreeSlots._state_is_valid(
+            assert not sut.Scheduler._state_is_valid(
                 params,
                 state={"ux": [1], "dev": [1, 1]},
             )
@@ -35,7 +33,7 @@ class TestStateIsValid:
             params = sut.Parameters(
                 datetime(2020, 1, 1), 1, [sut.Phase("ux", 1, 0), sut.Phase("dev", 4, 0)]
             )
-            assert not sut.FreeSlots._state_is_valid(
+            assert not sut.Scheduler._state_is_valid(
                 params,
                 state={"ux": [1]},
             )
@@ -45,7 +43,7 @@ class TestStateIsValid:
             params = sut.Parameters(
                 datetime(2020, 1, 1), 1, [sut.Phase("ux", 1, 0), sut.Phase("dev", 4, 0)]
             )
-            assert sut.FreeSlots._state_is_valid(
+            assert sut.Scheduler._state_is_valid(
                 params,
                 state={"ux": [1], "dev": [1, 1, 1, 1]},
             )
@@ -54,8 +52,8 @@ class TestStateIsValid:
 class TestScheduleFeature:
     class TestWhenIsFirstFeature:
         def test_ux_estimation_2_and_dev_estimation_4(self):
-            free_slots_empty = sut.FreeSlots()
-            assert free_slots_empty.schedule_feature(
+            scheduler_empty = sut.Scheduler()
+            assert scheduler_empty.schedule_feature(
                 sut.Feature(
                     name="Skynet", estimations={"ux": 2, "conception": 1, "dev": 4}
                 )
@@ -67,7 +65,7 @@ class TestScheduleFeature:
                     sut.SprintSpan("dev", 5, 8),
                 ],
             )
-            assert free_slots_empty._next_slots == {
+            assert scheduler_empty._next_slots == {
                 "ux": [3],
                 "conception": [4, 1],
                 "dev": [9, 1],

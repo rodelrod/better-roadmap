@@ -13,7 +13,7 @@ class ConfigurationError(Exception):
     pass
 
 
-class FreeSlots:
+class Scheduler:
     """Keep track of the latest sprints for each phase."""
 
     def __init__(
