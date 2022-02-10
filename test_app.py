@@ -12,18 +12,18 @@ class TestScheduleFeature:
                 feature="Internal Blast",
                 start=datetime(2021, 10, 1),
                 end=datetime(2021, 10, 15),
-                phase="UX",
+                phase="ux",
             ),
             sut.GraphSegment(
                 feature="Internal Blast",
                 start=datetime(2021, 10, 15),
                 end=datetime(2021, 10, 22),
-                phase="Conception",
+                phase="conception",
             ),
             sut.GraphSegment(
                 feature="Internal Blast",
                 start=datetime(2021, 10, 29),
                 end=datetime(2021, 11, 26),
-                phase="Dev",
+                phase="dev",
             ),
         ]

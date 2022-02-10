@@ -43,24 +43,19 @@ class FreeSlots:
     def schedule_feature(self, feature: Feature) -> FeatureSprintSpans:
         sprint_spans, _ = self._schedule_phase(feature, self.params.phases, 0)
 
-        for phase_name in sprint_spans:
-            replace_min(self._next_slots[phase_name], sprint_spans[phase_name].end + 1)
+        for sprint_span in sprint_spans:
+            replace_min(self._next_slots[sprint_span.phase], sprint_span.end + 1)
 
-        return FeatureSprintSpans(
-            feature=feature.name,
-            ux=sprint_spans["ux"],
-            conception=sprint_spans["conception"],
-            dev=sprint_spans["dev"],
-        )
+        return FeatureSprintSpans(feature=feature.name, spans=sprint_spans)
 
     def _schedule_phase(
         self,
         feature: Feature,
         phase_list: list[Phase],
         prev_end: int,
-    ) -> tuple[dict[str, SprintSpan], int]:
+    ) -> tuple[list[SprintSpan], int]:
         if not phase_list:
-            return ({}, maxsize)
+            return ([], maxsize)
         cur_phase, next_phases = phase_list[0], phase_list[1:]
         estimation = self._get_estimation(feature, cur_phase)
         phase_name = cur_phase.name
@@ -75,7 +70,7 @@ class FreeSlots:
         else:
             end = min_end
         start = end - estimation + 1
-        return (next_sprint_spans | {phase_name: SprintSpan(start, end)}, start)
+        return ([SprintSpan(phase_name, start, end)] + next_sprint_spans, start)
 
     def _get_estimation(self, feature: Feature, phase: Phase) -> int:
         if phase.name in feature.estimations:

@@ -23,6 +23,7 @@ class GraphSegment:
 
 @dataclass
 class SprintSpan:
+    phase: str
     start: int
     end: int
 
@@ -30,19 +31,19 @@ class SprintSpan:
 @dataclass
 class FeatureSprintSpans:
     feature: str
-    ux: SprintSpan
-    conception: SprintSpan
-    dev: SprintSpan
+    spans: list[SprintSpan]
 
 
 @dataclass
 class DateSpan:
+    phase: str
     start: datetime
     end: datetime
 
     @classmethod
     def from_sprint_span(cls, sprint_span: SprintSpan, project_start: datetime):
         return cls(
+            phase=sprint_span.phase,
             start=sprint_to_start_date(
                 sprint=sprint_span.start, project_start=project_start
             ),
@@ -53,38 +54,24 @@ class DateSpan:
 @dataclass
 class FeatureDateSpans:
     feature: str
-    ux: DateSpan
-    conception: DateSpan
-    dev: DateSpan
+    spans: list[DateSpan]
 
     @classmethod
     def from_feature_sprint_spans(
-        cls, sprint_spans: FeatureSprintSpans, project_start: datetime
+        cls, feature_sprint_spans: FeatureSprintSpans, project_start: datetime
     ):
         return cls(
-            feature=sprint_spans.feature,
-            ux=DateSpan.from_sprint_span(sprint_spans.ux, project_start),
-            conception=DateSpan.from_sprint_span(
-                sprint_spans.conception, project_start
-            ),
-            dev=DateSpan.from_sprint_span(sprint_spans.dev, project_start),
+            feature=feature_sprint_spans.feature,
+            spans=[
+                DateSpan.from_sprint_span(sprint_span, project_start)
+                for sprint_span in feature_sprint_spans.spans
+            ],
         )
 
     def get_graph_segments(self) -> list[GraphSegment]:
         return [
             GraphSegment(
-                feature=self.feature, start=self.ux.start, end=self.ux.end, phase="UX"
-            ),
-            GraphSegment(
-                feature=self.feature,
-                start=self.conception.start,
-                end=self.conception.end,
-                phase="Conception",
-            ),
-            GraphSegment(
-                feature=self.feature,
-                start=self.dev.start,
-                end=self.dev.end,
-                phase="Dev",
-            ),
+                feature=self.feature, start=span.start, end=span.end, phase=span.phase
+            )
+            for span in self.spans
         ]
