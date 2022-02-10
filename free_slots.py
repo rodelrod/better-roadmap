@@ -34,8 +34,9 @@ class FreeSlots:
         for phase in params.phases:
             if len(state.get(phase.name, [])) != phase.max_concurrency:
                 log.warning(
-                    f"Initial state malformed: '{phase.name}' has {len(state.get(phase.name, []))}"
-                    f" slots instead of {phase.max_concurrency}."
+                    f"Initial state malformed: '{phase.name}' has "
+                    f"{len(state.get(phase.name, []))} slots "
+                    f"instead of {phase.max_concurrency}."
                 )
                 return False
         return True
