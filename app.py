@@ -19,7 +19,7 @@ PROJECT_START = datetime(2021, 10, 1)
 def main():
     graph_segments = []
     parameters = parse_parameters()
-    scheduler = Scheduler(parameters)
+    scheduler = Scheduler(parameters.phases)
     for feature in parse_features():
         graph_segments.extend(schedule_feature(feature, scheduler))
 

@@ -1,7 +1,7 @@
 import logging
 
 from feature import Feature
-from parameters import DEFAULT_PARAMETERS, Parameters, Phase, Sprint
+from parameters import DEFAULT_PARAMETERS, Phase
 from span import FeatureSprintSpans, SprintSpan
 from sys import maxsize
 from utils import replace_min
@@ -18,20 +18,20 @@ class Scheduler:
 
     def __init__(
         self,
-        params: Parameters = DEFAULT_PARAMETERS,
+        phases: list[Phase] = DEFAULT_PARAMETERS.phases,
         initial_state: dict[str, list[int]] = None,
     ) -> None:
-        self.params = params
-        if initial_state and self._state_is_valid(params, initial_state):
+        self.phases = phases
+        if initial_state and self._state_is_valid(phases, initial_state):
             self._next_slots = initial_state
         else:
             self._next_slots = {}
-            for phase in params.phases:
+            for phase in phases:
                 self._next_slots[phase.name] = [1] * phase.max_concurrency
 
     @staticmethod
-    def _state_is_valid(params: Parameters, state: dict[str, list[int]]) -> bool:
-        for phase in params.phases:
+    def _state_is_valid(phases: list[Phase], state: dict[str, list[int]]) -> bool:
+        for phase in phases:
             if len(state.get(phase.name, [])) != phase.max_concurrency:
                 log.warning(
                     f"Initial state malformed: '{phase.name}' has "
@@ -42,7 +42,7 @@ class Scheduler:
         return True
 
     def schedule_feature(self, feature: Feature) -> FeatureSprintSpans:
-        sprint_spans, _ = self._schedule_phase(feature, self.params.phases, 0)
+        sprint_spans, _ = self._schedule_phase(feature, self.phases, 0)
 
         for sprint_span in sprint_spans:
             replace_min(self._next_slots[sprint_span.phase], sprint_span.end + 1)
