@@ -8,7 +8,7 @@ import yaml
 
 from scheduler import Scheduler
 from feature import Feature
-from parameters import Parameters, Phase, Sprint
+from parameters import Parameters, Phase, SprintDuration
 from span import FeatureDateSpans, GraphSegment
 
 FEATURES_FILE = Path("data", "features.yml")
@@ -45,7 +45,9 @@ def parse_parameters() -> Parameters:
             "project_start": parameters_dict["project_start"],
             "default_sprint_duration": parameters_dict["default_sprint_duration"],
             "phases": [Phase.from_dict(p) for p in parameters_dict["phases"]],
-            "sprints": [Sprint.from_dict(s) for s in parameters_dict["sprints"]],
+            "sprint_durations": [
+                SprintDuration.from_dict(s) for s in parameters_dict["sprints"]
+            ],
         }
     )
     return parameters

@@ -14,6 +14,23 @@ class TestSprintToDate:
             sprint=3, project_start=datetime(2022, 1, 6)
         ) == datetime(2022, 1, 27)
 
+    def test_sprint_to_start_date_with_longer_sprints(self):
+        sprint_durations = [
+            sut.SprintDuration(2, 3),
+            sut.SprintDuration(3, 2),
+            sut.SprintDuration(6, 2),
+        ]
+        assert sut.sprint_to_start_date(
+            sprint=5,
+            project_start=datetime(2022, 1, 6),
+            sprint_durations=sprint_durations,
+        ) == datetime(2022, 2, 24)
+
+    def test_sprint_to_start_date_with_custom_sprint_duration(self):
+        assert sut.sprint_to_start_date(
+            sprint=5, project_start=datetime(2022, 1, 6), default_sprint_duration=2
+        ) == datetime(2022, 3, 3)
+
 
 class TestScheduledSpan:
     def test_sprint_to_date_spans(self):

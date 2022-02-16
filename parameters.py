@@ -16,7 +16,7 @@ class Phase(Config):
 
 
 @dataclass
-class Sprint(Config):
+class SprintDuration(Config):
     number: int
     duration: int
 
@@ -26,7 +26,7 @@ class Parameters(Config):
     project_start: datetime
     default_sprint_duration: int
     phases: list[Phase]
-    sprints: Optional[list[Sprint]] = None
+    sprint_durations: Optional[list[SprintDuration]] = None
 
 
 DEFAULT_PARAMETERS = Parameters(

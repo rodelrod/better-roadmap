@@ -1,14 +1,35 @@
 from dataclasses import dataclass
+from parameters import SprintDuration
+from typing import Optional
 from datetime import datetime, timedelta
 
 
-def sprint_to_start_date(sprint: int, project_start: datetime) -> datetime:
-    # Sprint numbers are 1-based. To get the sprint start date we need to subtract 1.
-    return project_start + timedelta(weeks=(sprint - 1))
+def sprint_to_end_date(
+    sprint: int,
+    project_start: datetime,
+    sprint_durations: Optional[list[SprintDuration]] = None,
+    default_sprint_duration: int = 1,
+) -> datetime:
+    atypical_sprints = []
+    atypical_sprints_in_weeks = 0
+    if sprint_durations:
+        atypical_sprints = [sd for sd in sprint_durations if sd.number <= sprint]
+        atypical_sprints_in_weeks = sum(sd.duration for sd in atypical_sprints)
+    normal_sprints_in_weeks = (sprint - len(atypical_sprints)) * default_sprint_duration
+    return project_start + timedelta(
+        weeks=(atypical_sprints_in_weeks + normal_sprints_in_weeks)
+    )
 
 
-def sprint_to_end_date(sprint: int, project_start: datetime) -> datetime:
-    return project_start + timedelta(weeks=sprint)
+def sprint_to_start_date(
+    sprint: int,
+    project_start: datetime,
+    sprint_durations: Optional[list[SprintDuration]] = None,
+    default_sprint_duration=1,
+) -> datetime:
+    return sprint_to_end_date(
+        sprint - 1, project_start, sprint_durations, default_sprint_duration
+    )
 
 
 @dataclass
@@ -41,13 +62,27 @@ class DateSpan:
     end: datetime
 
     @classmethod
-    def from_sprint_span(cls, sprint_span: SprintSpan, project_start: datetime):
+    def from_sprint_span(
+        cls,
+        sprint_span: SprintSpan,
+        project_start: datetime,
+        sprint_durations: Optional[list[SprintDuration]] = None,
+        default_sprint_duration: int = 1,
+    ):
         return cls(
             phase=sprint_span.phase,
             start=sprint_to_start_date(
-                sprint=sprint_span.start, project_start=project_start
+                sprint_span.start,
+                project_start,
+                sprint_durations,
+                default_sprint_duration,
             ),
-            end=sprint_to_end_date(sprint=sprint_span.end, project_start=project_start),
+            end=sprint_to_end_date(
+                sprint_span.end,
+                project_start,
+                sprint_durations,
+                default_sprint_duration,
+            ),
         )
 
 
