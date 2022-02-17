@@ -2,6 +2,7 @@
 from datetime import datetime
 from pathlib import Path
 
+from dash import Dash, html, dcc
 import pandas as pd
 import plotly.express as px
 import yaml
@@ -16,6 +17,9 @@ PARAMETERS_FILE = Path("data", "parameters.yml")
 PROJECT_START = datetime(2021, 10, 1)
 
 
+app = Dash(__name__, title="Better Roadmap")
+
+
 def main():
     graph_segments = []
     parameters = parse_parameters()
@@ -27,7 +31,18 @@ def main():
 
     fig = px.timeline(df, x_start="start", x_end="end", y="feature", color="phase")
     fig.update_yaxes(autorange="reversed")
-    fig.show()
+    app.layout = html.Div(
+        children=[
+            html.H1(children="Better Roadmap"),
+            html.Div(
+                children="""
+                    Estimate your "agile sprints" until the end of days to please the PHBs.
+                """
+            ),
+            dcc.Graph(id="roadmap", figure=fig),
+        ]
+    )
+    app.run_server(debug=True)
 
 
 def parse_features() -> list[Feature]:
