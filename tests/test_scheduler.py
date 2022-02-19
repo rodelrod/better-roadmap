@@ -1,4 +1,4 @@
-import scheduler as sut
+import better_roadmap.scheduler as sut
 
 
 def _feature(ux_estimation):

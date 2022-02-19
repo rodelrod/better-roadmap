@@ -1,10 +1,10 @@
 import logging
-
-from feature import Feature
-from parameters import DEFAULT_PARAMETERS, Phase
-from span import FeatureSprintSpans, SprintSpan
 from sys import maxsize
-from utils import replace_min
+
+from .feature import Feature
+from .parameters import DEFAULT_PARAMETERS, Phase
+from .span import FeatureSprintSpans, SprintSpan
+from .utils import replace_min
 
 log = logging.getLogger(__name__)
 

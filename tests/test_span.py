@@ -1,4 +1,4 @@
-import span as sut
+import better_roadmap.span as sut
 
 from datetime import datetime
 

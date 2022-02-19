@@ -7,10 +7,10 @@ import pandas as pd
 import plotly.express as px
 import yaml
 
-from scheduler import Scheduler
-from feature import Feature
-from parameters import Parameters, Phase, SprintDuration
-from span import FeatureDateSpans, GraphSegment
+from .scheduler import Scheduler
+from .feature import Feature
+from .parameters import Parameters, Phase, SprintDuration
+from .span import FeatureDateSpans, GraphSegment
 
 FEATURES_FILE = Path("data", "features.yml")
 PARAMETERS_FILE = Path("data", "parameters.yml")
