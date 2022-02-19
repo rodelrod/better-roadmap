@@ -1,6 +1,6 @@
 from datetime import datetime
 
-import app as sut
+import better_roadmap.app as sut
 
 
 class TestScheduleFeature:

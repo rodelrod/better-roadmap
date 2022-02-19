@@ -1,6 +1,6 @@
 import pytest
 
-import feature as sut
+import better_roadmap.feature as sut
 
 
 class TestFeatureFromDict:

@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-from parameters import SprintDuration
 from typing import Optional
 from datetime import datetime, timedelta
+
+from .parameters import SprintDuration
 
 
 def sprint_to_end_date(
