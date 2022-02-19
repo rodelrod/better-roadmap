@@ -12,12 +12,14 @@ from .feature import Feature
 from .parameters import Parameters, Phase, SprintDuration
 from .span import FeatureDateSpans, GraphSegment
 
-FEATURES_FILE = Path("data", "features.yml")
-PARAMETERS_FILE = Path("data", "parameters.yml")
+PROJECT_ROOT = Path("..")
+FEATURES_FILE = PROJECT_ROOT / "data" / "features.yml"
+PARAMETERS_FILE = PROJECT_ROOT / "data" / "parameters.yml"
+ASSETS_FOLDER = PROJECT_ROOT / "assets"
 PROJECT_START = datetime(2021, 10, 1)
 
 
-app = Dash(__name__, title="Better Roadmap")
+app = Dash(__name__, title="Better Roadmap", assets_folder=ASSETS_FOLDER)
 
 
 def main():
