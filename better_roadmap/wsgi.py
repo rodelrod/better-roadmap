@@ -1,5 +1,5 @@
 from flask import Flask
 
-from .app import create_app
+from .app import app
 
-server: Flask = create_app().server
+server: Flask = app.server

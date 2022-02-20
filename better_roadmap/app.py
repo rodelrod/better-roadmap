@@ -18,9 +18,10 @@ PARAMETERS_FILE = APP_DIR / "data" / "parameters.yml"
 ASSETS_FOLDER = APP_DIR / "assets"
 PROJECT_START = datetime(2021, 10, 1)
 
+app = Dash(__name__, title="Better Roadmap", assets_folder=ASSETS_FOLDER)
 
-def create_app() -> Dash:
-    app = Dash(__name__, title="Better Roadmap", assets_folder=ASSETS_FOLDER)
+
+def configure_app(someapp: Dash):
     graph_segments = []
     parameters = parse_parameters()
     scheduler = Scheduler(parameters.phases)
@@ -28,8 +29,7 @@ def create_app() -> Dash:
         graph_segments.extend(schedule_feature(feature, scheduler))
     df = pd.DataFrame(graph_segments)
     fig = chart(df)
-    app.layout = layout(fig)
-    return app
+    someapp.layout = layout(fig)
 
 
 def chart(df: pd.DataFrame):
@@ -85,3 +85,6 @@ def schedule_feature(
         feature_sprint_spans, project_start=PROJECT_START
     )
     return feature_data_spans.get_graph_segments()
+
+
+configure_app(app)

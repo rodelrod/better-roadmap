@@ -1,3 +1,3 @@
-from .app import create_app
+from .app import app
 
-create_app().run_server(debug=True)
+app.run_server(debug=True)
