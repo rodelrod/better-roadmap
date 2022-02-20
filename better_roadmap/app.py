@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from datetime import datetime
+import os
 from pathlib import Path
 
 from dash import Dash, html, dcc
@@ -12,28 +13,44 @@ from .feature import Feature
 from .parameters import Parameters, Phase, SprintDuration
 from .span import FeatureDateSpans, GraphSegment
 
-PROJECT_ROOT = Path("..")
-FEATURES_FILE = PROJECT_ROOT / "data" / "features.yml"
-PARAMETERS_FILE = PROJECT_ROOT / "data" / "parameters.yml"
-ASSETS_FOLDER = PROJECT_ROOT / "assets"
+APP_DIR = Path(os.getenv("APP_DIR", "."))
+FEATURES_FILE = APP_DIR / "data" / "features.yml"
+PARAMETERS_FILE = APP_DIR / "data" / "parameters.yml"
+ASSETS_FOLDER = APP_DIR / "assets"
 PROJECT_START = datetime(2021, 10, 1)
 
 
-app = Dash(__name__, title="Better Roadmap", assets_folder=ASSETS_FOLDER)
-
-
 def main():
+    app = create_app()
+    app.run_server(debug=True)
+
+
+def wsgi():
+    app = create_app()
+    return app.server
+
+
+def create_app():
+    app = Dash(__name__, title="Better Roadmap", assets_folder=ASSETS_FOLDER)
     graph_segments = []
     parameters = parse_parameters()
     scheduler = Scheduler(parameters.phases)
     for feature in parse_features():
         graph_segments.extend(schedule_feature(feature, scheduler))
-
     df = pd.DataFrame(graph_segments)
+    fig = chart(df)
+    app.layout = layout(fig)
+    return app
 
+
+def chart(df: pd.DataFrame):
     fig = px.timeline(df, x_start="start", x_end="end", y="feature", color="phase")
     fig.update_yaxes(autorange="reversed")
-    app.layout = html.Div(
+    return fig
+
+
+def layout(fig):
+    return html.Div(
         children=[
             html.H1(children="Better Roadmap"),
             html.Div(
@@ -44,7 +61,6 @@ def main():
             dcc.Graph(id="roadmap", figure=fig),
         ]
     )
-    app.run_server(debug=True)
 
 
 def parse_features() -> list[Feature]:
