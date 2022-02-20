@@ -1,0 +1,9 @@
+.git/
+.direnv/
+.pytest_cache/
+tests/
+.envrc
+.flake8
+.gitignore
+__pycache__
+tags
