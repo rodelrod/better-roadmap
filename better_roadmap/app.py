@@ -12,7 +12,7 @@ from .feature import Feature
 from .parameters import Parameters, Phase, SprintDuration
 from .span import FeatureDateSpans, GraphSegment
 
-APP_DIR = Path(os.getenv("APP_DIR", "."))
+APP_DIR = Path(os.getenv("APP_DIR", ".")).resolve()
 FEATURES_FILE = APP_DIR / "data" / "features.yml"
 PARAMETERS_FILE = APP_DIR / "data" / "parameters.yml"
 ASSETS_FOLDER = APP_DIR / "assets"
