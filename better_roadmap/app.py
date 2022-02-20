@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 from pathlib import Path
 
-from dash import Dash, html, dcc
+from dash import Dash, html, dcc, Input, Output, State
 import pandas as pd
 import plotly.express as px
 import yaml
@@ -22,14 +22,28 @@ app = Dash(__name__, title="Better Roadmap", assets_folder=ASSETS_FOLDER)
 
 
 def configure_app(someapp: Dash):
+    fig = update_graph()
+    someapp.layout = layout(fig)
+
+
+@app.callback(
+    Output("roadmap-graph", "figure"),
+    Input("features-textarea-button", "n_clicks"),
+    State("features-textarea", "value"),
+)
+def update_graph_callback(n_clicks, input_value):
+    return update_graph(input_value)
+
+
+def update_graph(features=None):
     graph_segments = []
     parameters = parse_parameters()
     scheduler = Scheduler(parameters.phases)
-    for feature in parse_features():
+    for feature in parse_features(features):
         graph_segments.extend(schedule_feature(feature, scheduler))
     df = pd.DataFrame(graph_segments)
     fig = chart(df)
-    someapp.layout = layout(fig)
+    return fig
 
 
 def chart(df: pd.DataFrame):
@@ -47,16 +61,32 @@ def layout(fig):
                     Estimate your "agile sprints" until the end of days to please the PHBs.
                 """
             ),
-            dcc.Graph(id="roadmap", figure=fig),
+            dcc.Graph(id="roadmap-graph", figure=fig),
+            dcc.Textarea(
+                id="features-textarea",
+                value=get_default_features_as_text(),
+                persistence=True,
+                persistence_type="local",
+            ),
+            html.Button("Submit", id="features-textarea-button", n_clicks=0),
         ]
     )
 
 
-def parse_features() -> list[Feature]:
-    with FEATURES_FILE.open() as features_file:
-        feature_dicts = yaml.load(features_file, Loader=yaml.SafeLoader)
+def parse_features(features_text) -> list[Feature]:
+    if features_text:
+        feature_dicts = yaml.safe_load(features_text)
+    else:
+        with FEATURES_FILE.open() as features_file:
+            feature_dicts = yaml.safe_load(features_file)
     features = [Feature.from_dict(d) for d in feature_dicts]
     return features
+
+
+def get_default_features_as_text() -> str:
+    with FEATURES_FILE.open() as features_file:
+        default_features = features_file.read()
+    return default_features
 
 
 def parse_parameters() -> Parameters:
