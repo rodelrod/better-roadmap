@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from dash import Dash, html, dcc, Input, Output, State
+import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 import yaml
@@ -18,7 +19,12 @@ PARAMETERS_FILE = APP_DIR / "data" / "parameters.yml"
 ASSETS_FOLDER = APP_DIR / "assets"
 PROJECT_START = datetime(2021, 10, 1)
 
-app = Dash(__name__, title="Better Roadmap", assets_folder=ASSETS_FOLDER)
+app = Dash(
+    __name__,
+    title="Better Roadmap",
+    assets_folder=ASSETS_FOLDER,
+    external_stylesheets=[dbc.themes.PULSE],
+)
 
 
 def configure_app(someapp: Dash):
@@ -53,24 +59,63 @@ def chart(df: pd.DataFrame):
 
 
 def layout(fig):
-    return html.Div(
-        children=[
-            html.H1(children="Better Roadmap"),
-            html.Div(
-                children="""
-                    Estimate your "agile sprints" until the end of days to please the PHBs.
-                """
+    tab_chart = dbc.Tab(
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    dcc.Graph(id="roadmap-graph", figure=fig),
+                ]
             ),
-            dcc.Graph(id="roadmap-graph", figure=fig),
-            dcc.Textarea(
-                id="features-textarea",
-                value=get_default_features_as_text(),
-                persistence=True,
-                persistence_type="local",
-            ),
-            html.Button("Submit", id="features-textarea-button", n_clicks=0),
-        ]
+            style={"border-top": "none"},
+        ),
+        label="Roadmap",
     )
+    tab_features = dbc.Tab(
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                dbc.Textarea(
+                                    id="features-textarea",
+                                    value=get_default_features_as_text(),
+                                    rows=30,
+                                    persistence=True,
+                                    persistence_type="local",
+                                ),
+                            ),
+                            dbc.Col(
+                                dbc.Button(
+                                    "Update",
+                                    id="features-textarea-button",
+                                    n_clicks=0,
+                                    className="btn-lg",
+                                ),
+                            ),
+                        ]
+                    )
+                ]
+            ),
+            style={"border-top": "none"},
+        ),
+        label="Features",
+    )
+    layout = (
+        html.Div(
+            [
+                html.H1(children="Better Roadmap", className="display-3"),
+                html.P(
+                    """
+                        Estimate your "agile sprints" until the end of days to please the PHBs.
+                    """,
+                    className="lead",
+                ),
+                dbc.Tabs([tab_chart, tab_features]),
+            ]
+        ),
+    )
+    return dbc.Container(layout, fluid=True)
 
 
 def parse_features(features_text) -> list[Feature]:
