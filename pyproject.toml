@@ -5,7 +5,7 @@ description = "Create a Gantt chart-y longterm roadmap for a scrum project"
 authors = ["Rodrigo Eliseu <rodrigo@eliseu.me>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 pandas = "^1.4.0"
 plotly-express = "^0.4.1"
 Flask = "^2.0.2"
