@@ -37,4 +37,4 @@ COPY . .
 
 EXPOSE ${APP_PORT}
 
-CMD gunicorn --bind 0.0.0.0:${APP_PORT} --access-logfile - "better_roadmap.app:wsgi()"
+CMD gunicorn --bind 0.0.0.0:${APP_PORT} --access-logfile - "better_roadmap.wsgi:server"

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from datetime import datetime
 import os
 from pathlib import Path
@@ -20,17 +19,7 @@ ASSETS_FOLDER = APP_DIR / "assets"
 PROJECT_START = datetime(2021, 10, 1)
 
 
-def main():
-    app = create_app()
-    app.run_server(debug=True)
-
-
-def wsgi():
-    app = create_app()
-    return app.server
-
-
-def create_app():
+def create_app() -> Dash:
     app = Dash(__name__, title="Better Roadmap", assets_folder=ASSETS_FOLDER)
     graph_segments = []
     parameters = parse_parameters()
@@ -96,7 +85,3 @@ def schedule_feature(
         feature_sprint_spans, project_start=PROJECT_START
     )
     return feature_data_spans.get_graph_segments()
-
-
-if __name__ == "__main__":
-    main()
