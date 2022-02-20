@@ -1,0 +1,19 @@
+---
+project_start: 2022-01-01
+default_sprint_duration: 1
+phases:
+  - name: ux
+    max_concurrency: 1
+    min_gap_before: 0
+    max_gap_after: 3
+  - name: conception
+    max_concurrency: 2
+    min_gap_before: 0
+    max_gap_after: 3
+    default_estimation: 1
+  - name: dev
+    max_concurrency: 2
+    min_gap_before: 1
+sprints:
+  - number: 3
+    duration: 2

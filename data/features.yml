@@ -1,0 +1,24 @@
+---
+- name: "Login page"
+  estimations:
+    ux: 1
+    dev: 1
+- name: "Product list"
+  estimations:
+    ux: 2
+    conception: 2
+    dev: 3
+- name: "Product page"
+  estimations:
+    ux: 2
+    conception: 1
+    dev: 4
+- name: "Shopping cart"
+  estimations:
+    ux: 2
+    dev: 4
+- name: "Checkout"
+  estimations:
+    ux: 0
+    conception: 1
+    dev: 5
