@@ -2,6 +2,7 @@ from datetime import datetime
 import os
 from pathlib import Path
 
+import dash
 from dash import Dash, html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
 import pandas as pd
@@ -17,7 +18,6 @@ APP_DIR = Path(os.getenv("APP_DIR", ".")).resolve()
 FEATURES_FILE = APP_DIR / "data" / "features.yml"
 PARAMETERS_FILE = APP_DIR / "data" / "parameters.yml"
 ASSETS_FOLDER = APP_DIR / "assets"
-PROJECT_START = datetime(2021, 10, 1)
 
 app = Dash(
     __name__,
@@ -36,17 +36,31 @@ def configure_app(someapp: Dash):
     Output("roadmap-graph", "figure"),
     Input("features-textarea-button", "n_clicks"),
     State("features-textarea", "value"),
+    Input("parameters-textarea-button", "n_clicks"),
+    State("parameters-textarea", "value"),
 )
-def update_graph_callback(n_clicks, input_value):
-    return update_graph(input_value)
+def update_graph_callback(_a, features_text, _b, parameters_text):
+    # Horrid code necessary because dash does not allow me to register 2
+    # callbacks to the same Output.
+    ctx = dash.callback_context
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    if not trigger_id:
+        # app load
+        return update_graph(features_text, parameters_text)
+    if trigger_id == "parameters-textarea-button":
+        return update_graph(parameters_text=parameters_text)
+    else:
+        return update_graph(features_text=features_text)
 
 
-def update_graph(features=None):
+def update_graph(features_text=None, parameters_text=None):
     graph_segments = []
-    parameters = parse_parameters()
+    parameters = parse_parameters(parameters_text)
     scheduler = Scheduler(parameters.phases)
-    for feature in parse_features(features):
-        graph_segments.extend(schedule_feature(feature, scheduler))
+    for feature in parse_features(features_text):
+        graph_segments.extend(
+            schedule_feature(feature, parameters.project_start, scheduler)
+        )
     df = pd.DataFrame(graph_segments)
     fig = chart(df)
     return fig
@@ -68,7 +82,7 @@ def layout(fig):
             ),
             style={"border-top": "none"},
         ),
-        label="Roadmap",
+        label="📅 Roadmap",
     )
     tab_features = dbc.Tab(
         dbc.Card(
@@ -99,7 +113,38 @@ def layout(fig):
             ),
             style={"border-top": "none"},
         ),
-        label="Features",
+        label="🏆 Features",
+    )
+    tab_parameters = dbc.Tab(
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                dbc.Textarea(
+                                    id="parameters-textarea",
+                                    value=get_default_parameters_as_text(),
+                                    rows=20,
+                                    persistence=True,
+                                    persistence_type="local",
+                                ),
+                            ),
+                            dbc.Col(
+                                dbc.Button(
+                                    "Update",
+                                    id="parameters-textarea-button",
+                                    n_clicks=0,
+                                    className="btn-lg",
+                                ),
+                            ),
+                        ]
+                    )
+                ]
+            ),
+            style={"border-top": "none"},
+        ),
+        label="⚙ ️Parameters",
     )
     layout = (
         html.Div(
@@ -111,7 +156,7 @@ def layout(fig):
                     """,
                     className="lead",
                 ),
-                dbc.Tabs([tab_chart, tab_features]),
+                dbc.Tabs([tab_chart, tab_features, tab_parameters]),
             ]
         ),
     )
@@ -134,9 +179,12 @@ def get_default_features_as_text() -> str:
     return default_features
 
 
-def parse_parameters() -> Parameters:
-    with PARAMETERS_FILE.open() as parameters_file:
-        parameters_dict = yaml.load(parameters_file, Loader=yaml.SafeLoader)
+def parse_parameters(parameters_text) -> Parameters:
+    if parameters_text:
+        parameters_dict = yaml.safe_load(parameters_text)
+    else:
+        with PARAMETERS_FILE.open() as parameters_file:
+            parameters_dict = yaml.safe_load(parameters_file)
     parameters = Parameters.from_dict(
         {
             "project_start": parameters_dict["project_start"],
@@ -150,14 +198,20 @@ def parse_parameters() -> Parameters:
     return parameters
 
 
+def get_default_parameters_as_text() -> str:
+    with PARAMETERS_FILE.open() as parameters_file:
+        default_parameters = parameters_file.read()
+    return default_parameters
+
+
 def schedule_feature(
-    feature: Feature, scheduler: Scheduler = None
+    feature: Feature, project_start: datetime, scheduler: Scheduler = None
 ) -> list[GraphSegment]:
     if not scheduler:
         scheduler = Scheduler()
     feature_sprint_spans = scheduler.schedule_feature(feature)
     feature_data_spans = FeatureDateSpans.from_feature_sprint_spans(
-        feature_sprint_spans, project_start=PROJECT_START
+        feature_sprint_spans, project_start=project_start
     )
     return feature_data_spans.get_graph_segments()
 
