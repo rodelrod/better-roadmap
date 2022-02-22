@@ -34,9 +34,9 @@ def configure_app(someapp: Dash):
 
 @app.callback(
     Output("roadmap-graph", "figure"),
-    Input("features-textarea-button", "n_clicks"),
+    Input("features-update-button", "n_clicks"),
     State("features-textarea", "value"),
-    Input("parameters-textarea-button", "n_clicks"),
+    Input("parameters-update-button", "n_clicks"),
     State("parameters-textarea", "value"),
 )
 def update_graph_callback(_a, features_text, _b, parameters_text):
@@ -47,10 +47,34 @@ def update_graph_callback(_a, features_text, _b, parameters_text):
     if not trigger_id:
         # app load
         return update_graph(features_text, parameters_text)
-    if trigger_id == "parameters-textarea-button":
+    if trigger_id == "parameters-update-button":
         return update_graph(parameters_text=parameters_text)
     else:
         return update_graph(features_text=features_text)
+
+
+@app.callback(
+    Output("features-download", "data"),
+    Input("features-download-button", "n_clicks"),
+    State("features-textarea", "value"),
+    prevent_initial_call=True,
+)
+def download_features(_, features_text: str):
+    now = datetime.now()
+    filename = f"features_{now:%Y%m%dT%H%M}.yml"
+    return {"content": features_text, "filename": filename}
+
+
+@app.callback(
+    Output("parameters-download", "data"),
+    Input("parameters-download-button", "n_clicks"),
+    State("parameters-textarea", "value"),
+    prevent_initial_call=True,
+)
+def download_parameters(_, parameters_text: str):
+    now = datetime.now()
+    filename = f"parameters_{now:%Y-%m-%d_%H%M}.yml"
+    return {"content": parameters_text, "filename": filename}
 
 
 def update_graph(features_text=None, parameters_text=None):
@@ -100,12 +124,29 @@ def layout(fig):
                                 ),
                             ),
                             dbc.Col(
-                                dbc.Button(
-                                    "Update",
-                                    id="features-textarea-button",
-                                    n_clicks=0,
-                                    className="btn-lg",
-                                ),
+                                dbc.ButtonGroup(
+                                    [
+                                        dbc.Button(
+                                            "Update",
+                                            id="features-update-button",
+                                            n_clicks=0,
+                                            className="btn-lg",
+                                        ),
+                                        dcc.Download(id="features-download"),
+                                        dbc.Button(
+                                            "Download",
+                                            id="features-download-button",
+                                            n_clicks=0,
+                                            className="btn-lg",
+                                        ),
+                                        dbc.Button(
+                                            "Upload",
+                                            id="features-upload-button",
+                                            n_clicks=0,
+                                            className="btn-lg",
+                                        ),
+                                    ]
+                                )
                             ),
                         ]
                     )
@@ -131,12 +172,29 @@ def layout(fig):
                                 ),
                             ),
                             dbc.Col(
-                                dbc.Button(
-                                    "Update",
-                                    id="parameters-textarea-button",
-                                    n_clicks=0,
-                                    className="btn-lg",
-                                ),
+                                dbc.ButtonGroup(
+                                    [
+                                        dbc.Button(
+                                            "Update",
+                                            id="parameters-update-button",
+                                            n_clicks=0,
+                                            className="btn-lg",
+                                        ),
+                                        dcc.Download(id="parameters-download"),
+                                        dbc.Button(
+                                            "Download",
+                                            id="parameters-download-button",
+                                            n_clicks=0,
+                                            className="btn-lg",
+                                        ),
+                                        dbc.Button(
+                                            "Upload",
+                                            id="parameters-upload-button",
+                                            n_clicks=0,
+                                            className="btn-lg",
+                                        ),
+                                    ]
+                                )
                             ),
                         ]
                     )
