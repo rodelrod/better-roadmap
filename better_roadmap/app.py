@@ -1,3 +1,4 @@
+from base64 import b64decode
 from datetime import datetime
 import os
 from pathlib import Path
@@ -23,7 +24,7 @@ app = Dash(
     __name__,
     title="Better Roadmap",
     assets_folder=ASSETS_FOLDER,
-    external_stylesheets=[dbc.themes.PULSE],
+    external_stylesheets=[dbc.themes.ZEPHYR, dbc.icons.BOOTSTRAP],
 )
 
 
@@ -73,8 +74,32 @@ def download_features(_, features_text: str):
 )
 def download_parameters(_, parameters_text: str):
     now = datetime.now()
-    filename = f"parameters_{now:%Y-%m-%d_%H%M}.yml"
+    filename = f"parameters_{now:%Y%m%dT%H%M}.yml"
     return {"content": parameters_text, "filename": filename}
+
+
+@app.callback(
+    Output("features-textarea", "value"),
+    Input("features-upload", "contents"),
+    prevent_initial_call=True,
+)
+def upload_features(content):
+    if not content:
+        return
+    _content_type, content_string = content.split(",")
+    return b64decode(content_string).decode("utf-8")
+
+
+@app.callback(
+    Output("parameters-textarea", "value"),
+    Input("parameters-upload", "contents"),
+    prevent_initial_call=True,
+)
+def upload_parameters(content):
+    if not content:
+        return
+    _content_type, content_string = content.split(",")
+    return b64decode(content_string).decode("utf-8")
 
 
 def update_graph(features_text=None, parameters_text=None):
@@ -104,7 +129,7 @@ def layout(fig):
                     dcc.Graph(id="roadmap-graph", figure=fig),
                 ]
             ),
-            style={"border-top": "none"},
+            style={"borderTop": "none"},
         ),
         label="📅 Roadmap",
     )
@@ -113,7 +138,7 @@ def layout(fig):
             dbc.CardBody(
                 [
                     dbc.Row(
-                        [
+                        children=[
                             dbc.Col(
                                 dbc.Textarea(
                                     id="features-textarea",
@@ -124,35 +149,70 @@ def layout(fig):
                                 ),
                             ),
                             dbc.Col(
-                                dbc.ButtonGroup(
-                                    [
-                                        dbc.Button(
-                                            "Update",
-                                            id="features-update-button",
-                                            n_clicks=0,
-                                            className="btn-lg",
+                                [
+                                    dbc.Row(
+                                        dbc.ButtonGroup(
+                                            [
+                                                dbc.Button(
+                                                    html.Span(
+                                                        [
+                                                            "Update",
+                                                            html.I(
+                                                                className="bi bi-bar-chart-steps ms-2"
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    id="features-update-button",
+                                                    n_clicks=0,
+                                                    className="btn-lg",
+                                                ),
+                                                dcc.Download(id="features-download"),
+                                                dbc.Button(
+                                                    html.Span(
+                                                        [
+                                                            "Download",
+                                                            html.I(
+                                                                className="bi bi-download ms-2"
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    id="features-download-button",
+                                                    n_clicks=0,
+                                                    className="btn-lg",
+                                                ),
+                                            ]
                                         ),
-                                        dcc.Download(id="features-download"),
-                                        dbc.Button(
-                                            "Download",
-                                            id="features-download-button",
-                                            n_clicks=0,
-                                            className="btn-lg",
+                                    ),
+                                    dbc.Row(
+                                        className="mt-3",
+                                        children=dbc.Col(
+                                            dbc.Button(
+                                                outline=True,
+                                                color="primary",
+                                                className="text-center d-grid gap-2 col-8 mx-auto",
+                                                children=dcc.Upload(
+                                                    id="features-upload",
+                                                    children=[
+                                                        html.I(
+                                                            className="bi bi-cloud-upload me-2",
+                                                            style={
+                                                                "fontSize": "xx-large"
+                                                            },
+                                                        ),
+                                                        html.Br(),
+                                                        "drag & drop or select file",
+                                                    ],
+                                                ),
+                                            ),
                                         ),
-                                        dbc.Button(
-                                            "Upload",
-                                            id="features-upload-button",
-                                            n_clicks=0,
-                                            className="btn-lg",
-                                        ),
-                                    ]
-                                )
+                                    ),
+                                ]
                             ),
-                        ]
+                        ],
                     )
                 ]
             ),
-            style={"border-top": "none"},
+            style={"borderTop": "none"},
         ),
         label="🏆 Features",
     )
@@ -172,35 +232,70 @@ def layout(fig):
                                 ),
                             ),
                             dbc.Col(
-                                dbc.ButtonGroup(
-                                    [
-                                        dbc.Button(
-                                            "Update",
-                                            id="parameters-update-button",
-                                            n_clicks=0,
-                                            className="btn-lg",
+                                [
+                                    dbc.Row(
+                                        dbc.ButtonGroup(
+                                            [
+                                                dbc.Button(
+                                                    html.Span(
+                                                        [
+                                                            "Update",
+                                                            html.I(
+                                                                className="bi bi-bar-chart-steps ms-2"
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    id="parameters-update-button",
+                                                    n_clicks=0,
+                                                    className="btn-lg",
+                                                ),
+                                                dcc.Download(id="parameters-download"),
+                                                dbc.Button(
+                                                    html.Span(
+                                                        [
+                                                            "Download",
+                                                            html.I(
+                                                                className="bi bi-download ms-2"
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    id="parameters-download-button",
+                                                    n_clicks=0,
+                                                    className="btn-lg",
+                                                ),
+                                            ]
                                         ),
-                                        dcc.Download(id="parameters-download"),
-                                        dbc.Button(
-                                            "Download",
-                                            id="parameters-download-button",
-                                            n_clicks=0,
-                                            className="btn-lg",
+                                    ),
+                                    dbc.Row(
+                                        className="mt-3",
+                                        children=dbc.Col(
+                                            dbc.Button(
+                                                outline=True,
+                                                color="primary",
+                                                className="text-center d-grid gap-2 col-8 mx-auto",
+                                                children=dcc.Upload(
+                                                    id="parameters-upload",
+                                                    children=[
+                                                        html.I(
+                                                            className="bi bi-cloud-upload me-2",
+                                                            style={
+                                                                "fontSize": "xx-large"
+                                                            },
+                                                        ),
+                                                        html.Br(),
+                                                        "drag & drop or select file",
+                                                    ],
+                                                ),
+                                            ),
                                         ),
-                                        dbc.Button(
-                                            "Upload",
-                                            id="parameters-upload-button",
-                                            n_clicks=0,
-                                            className="btn-lg",
-                                        ),
-                                    ]
-                                )
+                                    ),
+                                ]
                             ),
                         ]
                     )
                 ]
             ),
-            style={"border-top": "none"},
+            style={"borderTop": "none"},
         ),
         label="⚙ ️Parameters",
     )
