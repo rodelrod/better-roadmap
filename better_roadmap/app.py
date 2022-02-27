@@ -38,23 +38,13 @@ def configure_app(someapp: Dash):
 
 @app.callback(
     Output("roadmap-graph", "figure"),
-    Input("features-update-button", "n_clicks"),
     State("features-textarea", "value"),
-    Input("parameters-update-button", "n_clicks"),
     State("parameters-textarea", "value"),
+    Input("features-update-button", "n_clicks"),
+    Input("parameters-update-button", "n_clicks"),
 )
-def update_graph_callback(_a, features_text, _b, parameters_text):
-    # Horrid code necessary because dash does not allow me to register 2
-    # callbacks to the same Output.
-    ctx = dash.callback_context
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-    if not trigger_id:
-        # app load
-        return RoadmapChart(features_text, parameters_text).figure
-    if trigger_id == "parameters-update-button":
-        return RoadmapChart(parameters_text=parameters_text).figure
-    else:
-        return RoadmapChart(features_text=features_text).figure
+def update_graph(features_text, parameters_text, _features_clicks, _parameters_clicks):
+    return RoadmapChart(features_text, parameters_text).figure
 
 
 @app.callback(
