@@ -7,7 +7,7 @@ class TestScheduleFeature:
     def test_schedule_feature_in_first_sprint(self):
         feature = {"name": "Internal Blast", "ux_estimation": 2, "dev_estimation": 4}
         feature = sut.Feature(name="Internal Blast", estimations={"ux": 2, "dev": 4})
-        assert sut.schedule_feature(feature) == [
+        assert sut.schedule_feature(feature, datetime(2021, 10, 1)) == [
             sut.GraphSegment(
                 feature="Internal Blast",
                 start=datetime(2021, 10, 1),
