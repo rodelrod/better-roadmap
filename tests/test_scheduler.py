@@ -1,3 +1,4 @@
+from datetime import datetime
 import pytest
 
 import better_roadmap.scheduler as sut
@@ -45,23 +46,61 @@ class TestScheduleFeature:
             Phase("dev", 2, 1),
         ]
 
-    class TestWhenIsFirstFeature:
-        def test_ux_estimation_2_and_dev_estimation_4(self, phases):
-            scheduler_empty = sut.Scheduler(phases)
-            assert scheduler_empty.schedule_feature_as_sprints(
-                sut.Feature(
-                    name="Skynet", estimations={"ux": 2, "conception": 1, "dev": 4}
+    @pytest.fixture
+    def scheduler(self, phases):
+        return sut.Scheduler(phases)
+
+    class TestAsSprints:
+        class TestWhenIsFirstFeature:
+            def test_ux_estimation_2_and_dev_estimation_4(self, phases):
+                scheduler_empty = sut.Scheduler(phases)
+                assert scheduler_empty.schedule_feature_as_sprints(
+                    sut.Feature(
+                        name="Skynet", estimations={"ux": 2, "conception": 1, "dev": 4}
+                    )
+                ) == sut.FeatureSprintSpans(
+                    feature="Skynet",
+                    spans=[
+                        sut.SprintSpan("ux", 1, 2),
+                        sut.SprintSpan("conception", 3, 3),
+                        sut.SprintSpan("dev", 5, 8),
+                    ],
                 )
-            ) == sut.FeatureSprintSpans(
-                feature="Skynet",
-                spans=[
-                    sut.SprintSpan("ux", 1, 2),
-                    sut.SprintSpan("conception", 3, 3),
-                    sut.SprintSpan("dev", 5, 8),
-                ],
-            )
-            assert scheduler_empty._next_slots == {
-                "ux": [3],
-                "conception": [4, 1],
-                "dev": [9, 1],
+                assert scheduler_empty._next_slots == {
+                    "ux": [3],
+                    "conception": [4, 1],
+                    "dev": [9, 1],
+                }
+
+    class TestAsDates:
+        def test_schedule_feature_in_first_sprint(self, scheduler):
+            feature = {
+                "name": "Internal Blast",
+                "ux_estimation": 2,
+                "dev_estimation": 4,
             }
+            feature = sut.Feature(
+                name="Internal Blast", estimations={"ux": 2, "dev": 4}
+            )
+            assert scheduler.schedule_feature_as_dates(
+                feature, datetime(2021, 10, 1)
+            ) == [
+                sut.GraphSegment(
+                    feature="Internal Blast",
+                    start=datetime(2021, 10, 1),
+                    end=datetime(2021, 10, 15),
+                    phase="ux",
+                ),
+                sut.GraphSegment(
+                    feature="Internal Blast",
+                    start=datetime(2021, 10, 15),
+                    end=datetime(2021, 10, 22),
+                    phase="conception",
+                ),
+                sut.GraphSegment(
+                    feature="Internal Blast",
+                    start=datetime(2021, 10, 29),
+                    end=datetime(2021, 11, 26),
+                    phase="dev",
+                ),
+            ]
