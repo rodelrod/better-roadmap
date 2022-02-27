@@ -36,7 +36,7 @@ class Parameters(Config):
     sprint_durations: Optional[list[SprintDuration]] = None
 
     @classmethod
-    def from_text(cls, parameters_text: str):
+    def from_text(cls, parameters_text: Optional[str]):
         if not parameters_text:
             parameters_text = cls.get_default_parameters_text()
         parameters_dict = yaml.safe_load(parameters_text)

@@ -5,10 +5,11 @@ from pathlib import Path
 
 import dash
 import dash_bootstrap_components as dbc
-import pandas as pd
 import plotly.express as px
 from dash import Dash, Input, Output, State
 
+
+from .chart import RoadmapChart
 from .features import Feature, FeatureList
 from .layout import layout
 from .parameters import Parameters
@@ -27,7 +28,7 @@ app = Dash(
 
 
 def configure_app(someapp: Dash):
-    fig = update_graph()
+    fig = RoadmapChart().figure
     someapp.layout = layout(
         fig,
         FeatureList.get_default_features_text(),
@@ -49,11 +50,11 @@ def update_graph_callback(_a, features_text, _b, parameters_text):
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
     if not trigger_id:
         # app load
-        return update_graph(features_text, parameters_text)
+        return RoadmapChart(features_text, parameters_text).figure
     if trigger_id == "parameters-update-button":
-        return update_graph(parameters_text=parameters_text)
+        return RoadmapChart(parameters_text=parameters_text).figure
     else:
-        return update_graph(features_text=features_text)
+        return RoadmapChart(features_text=features_text).figure
 
 
 @app.callback(
@@ -102,25 +103,6 @@ def upload_parameters(content):
         return
     _content_type, content_string = content.split(",")
     return b64decode(content_string).decode("utf-8")
-
-
-def update_graph(features_text=None, parameters_text=None):
-    graph_segments = []
-    parameters = Parameters.from_text(parameters_text)
-    scheduler = Scheduler(parameters.phases)
-    for feature in FeatureList.from_text(features_text):
-        graph_segments.extend(
-            scheduler.schedule_feature_as_dates(feature, parameters.project_start)
-        )
-    df = pd.DataFrame(graph_segments)
-    fig = chart(df)
-    return fig
-
-
-def chart(df: pd.DataFrame):
-    fig = px.timeline(df, x_start="start", x_end="end", y="feature", color="phase")
-    fig.update_yaxes(autorange="reversed")
-    return fig
 
 
 configure_app(app)
