@@ -1,18 +1,18 @@
+import os
 from base64 import b64decode
 from datetime import datetime
-import os
 from pathlib import Path
 
 import dash
-from dash import Dash, html, dcc, Input, Output, State
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 import yaml
+from dash import Dash, Input, Output, State, dcc, html
 
-from .scheduler import Scheduler
 from .feature import Feature
 from .parameters import Parameters, Phase, SprintDuration
+from .scheduler import Scheduler
 from .span import FeatureDateSpans, GraphSegment
 
 APP_DIR = Path(os.getenv("APP_DIR", ".")).resolve()
