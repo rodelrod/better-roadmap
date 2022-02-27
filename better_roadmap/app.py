@@ -122,10 +122,8 @@ def chart(df: pd.DataFrame):
 
 
 def schedule_feature(
-    feature: Feature, project_start: datetime, scheduler: Scheduler = None
+    feature: Feature, project_start: datetime, scheduler: Scheduler
 ) -> list[GraphSegment]:
-    if not scheduler:
-        scheduler = Scheduler()
     feature_sprint_spans = scheduler.schedule_feature(feature)
     feature_data_spans = FeatureDateSpans.from_feature_sprint_spans(
         feature_sprint_spans, project_start=project_start

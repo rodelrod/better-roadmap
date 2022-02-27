@@ -2,7 +2,7 @@ import logging
 from sys import maxsize
 
 from .features import Feature
-from .parameters import DEFAULT_PARAMETERS, Phase
+from .parameters import Phase
 from .span import FeatureSprintSpans, SprintSpan
 from .utils import replace_min
 
@@ -18,7 +18,7 @@ class Scheduler:
 
     def __init__(
         self,
-        phases: list[Phase] = DEFAULT_PARAMETERS.phases,
+        phases: list[Phase],
         initial_state: dict[str, list[int]] = None,
     ) -> None:
         self.phases = phases

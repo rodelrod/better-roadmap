@@ -36,17 +36,6 @@ class Parameters(Config):
     sprint_durations: Optional[list[SprintDuration]] = None
 
 
-DEFAULT_PARAMETERS = Parameters(
-    datetime(2022, 10, 1),
-    1,
-    phases=[
-        Phase("ux", 1, 0),
-        Phase("conception", 2, 0, 3, 1),
-        Phase("dev", 2, 1),
-    ],
-)
-
-
 def parse_parameters(parameters_text) -> Parameters:
     if parameters_text:
         parameters_dict = yaml.safe_load(parameters_text)
