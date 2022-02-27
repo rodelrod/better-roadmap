@@ -110,7 +110,7 @@ def update_graph(features_text=None, parameters_text=None):
     scheduler = Scheduler(parameters.phases)
     for feature in FeatureList.from_text(features_text):
         graph_segments.extend(
-            schedule_feature(feature, parameters.project_start, scheduler)
+            scheduler.schedule_feature_as_dates(feature, parameters.project_start)
         )
     df = pd.DataFrame(graph_segments)
     fig = chart(df)
@@ -121,16 +121,6 @@ def chart(df: pd.DataFrame):
     fig = px.timeline(df, x_start="start", x_end="end", y="feature", color="phase")
     fig.update_yaxes(autorange="reversed")
     return fig
-
-
-def schedule_feature(
-    feature: Feature, project_start: datetime, scheduler: Scheduler
-) -> list[GraphSegment]:
-    feature_sprint_spans = scheduler.schedule_feature(feature)
-    feature_data_spans = FeatureDateSpans.from_feature_sprint_spans(
-        feature_sprint_spans, project_start=project_start
-    )
-    return feature_data_spans.get_graph_segments()
 
 
 configure_app(app)

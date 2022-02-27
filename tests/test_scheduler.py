@@ -48,7 +48,7 @@ class TestScheduleFeature:
     class TestWhenIsFirstFeature:
         def test_ux_estimation_2_and_dev_estimation_4(self, phases):
             scheduler_empty = sut.Scheduler(phases)
-            assert scheduler_empty.schedule_feature(
+            assert scheduler_empty.schedule_feature_as_sprints(
                 sut.Feature(
                     name="Skynet", estimations={"ux": 2, "conception": 1, "dev": 4}
                 )

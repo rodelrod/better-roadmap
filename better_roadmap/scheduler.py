@@ -1,9 +1,10 @@
 import logging
+from datetime import datetime
 from sys import maxsize
 
 from .features import Feature
 from .parameters import Phase
-from .span import FeatureSprintSpans, SprintSpan
+from .span import FeatureDateSpans, FeatureSprintSpans, SprintSpan, GraphSegment
 from .utils import replace_min
 
 log = logging.getLogger(__name__)
@@ -41,7 +42,16 @@ class Scheduler:
                 return False
         return True
 
-    def schedule_feature(self, feature: Feature) -> FeatureSprintSpans:
+    def schedule_feature_as_dates(
+        self, feature: Feature, project_start: datetime
+    ) -> list[GraphSegment]:
+        feature_sprint_spans = self.schedule_feature_as_sprints(feature)
+        feature_date_spans = FeatureDateSpans.from_feature_sprint_spans(
+            feature_sprint_spans, project_start=project_start
+        )
+        return feature_date_spans.get_graph_segments()
+
+    def schedule_feature_as_sprints(self, feature: Feature) -> FeatureSprintSpans:
         sprint_spans, _ = self._schedule_phase(feature, self.phases, 0)
 
         for sprint_span in sprint_spans:
