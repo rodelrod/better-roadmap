@@ -41,7 +41,7 @@ class TestStateIsValid:
 
 
 class TestScheduleFeature:
-    class TestWhenIsFphases:
+    class TestWhenIsFirstFeature:
         def test_ux_estimation_2_and_dev_estimation_4(self):
             scheduler_empty = sut.Scheduler()
             assert scheduler_empty.schedule_feature(
