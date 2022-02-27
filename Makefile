@@ -4,6 +4,9 @@ deploy:
 run:
 	python3 -m better_roadmap
 
+test:
+	pytest
+
 docker-build:
 	docker build . -t rodelrod/better-roadmap:0.1
 
