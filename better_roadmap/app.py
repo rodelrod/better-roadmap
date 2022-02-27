@@ -7,18 +7,15 @@ import dash
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
-import yaml
 from dash import Dash, Input, Output, State
 
-from .feature import Feature
+from .features import Feature, get_default_features_as_text, parse_features
 from .layout import layout
-from .parameters import Parameters, Phase, SprintDuration
+from .parameters import get_default_parameters_as_text, parse_parameters
 from .scheduler import Scheduler
 from .span import FeatureDateSpans, GraphSegment
 
 APP_DIR = Path(os.getenv("APP_DIR", ".")).resolve()
-FEATURES_FILE = APP_DIR / "data" / "features.yml"
-PARAMETERS_FILE = APP_DIR / "data" / "parameters.yml"
 ASSETS_FOLDER = APP_DIR / "assets"
 
 app = Dash(
@@ -122,47 +119,6 @@ def chart(df: pd.DataFrame):
     fig = px.timeline(df, x_start="start", x_end="end", y="feature", color="phase")
     fig.update_yaxes(autorange="reversed")
     return fig
-
-
-def parse_features(features_text) -> list[Feature]:
-    if features_text:
-        feature_dicts = yaml.safe_load(features_text)
-    else:
-        with FEATURES_FILE.open() as features_file:
-            feature_dicts = yaml.safe_load(features_file)
-    features = [Feature.from_dict(d) for d in feature_dicts]
-    return features
-
-
-def get_default_features_as_text() -> str:
-    with FEATURES_FILE.open() as features_file:
-        default_features = features_file.read()
-    return default_features
-
-
-def parse_parameters(parameters_text) -> Parameters:
-    if parameters_text:
-        parameters_dict = yaml.safe_load(parameters_text)
-    else:
-        with PARAMETERS_FILE.open() as parameters_file:
-            parameters_dict = yaml.safe_load(parameters_file)
-    parameters = Parameters.from_dict(
-        {
-            "project_start": parameters_dict["project_start"],
-            "default_sprint_duration": parameters_dict["default_sprint_duration"],
-            "phases": [Phase.from_dict(p) for p in parameters_dict["phases"]],
-            "sprint_durations": [
-                SprintDuration.from_dict(s) for s in parameters_dict["sprints"]
-            ],
-        }
-    )
-    return parameters
-
-
-def get_default_parameters_as_text() -> str:
-    with PARAMETERS_FILE.open() as parameters_file:
-        default_parameters = parameters_file.read()
-    return default_parameters
 
 
 def schedule_feature(

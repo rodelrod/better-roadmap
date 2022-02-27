@@ -1,7 +1,7 @@
 import logging
 from sys import maxsize
 
-from .feature import Feature
+from .features import Feature
 from .parameters import DEFAULT_PARAMETERS, Phase
 from .span import FeatureSprintSpans, SprintSpan
 from .utils import replace_min
