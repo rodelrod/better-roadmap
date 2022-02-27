@@ -3,18 +3,14 @@ from base64 import b64decode
 from datetime import datetime
 from pathlib import Path
 
-import dash
 import dash_bootstrap_components as dbc
-import plotly.express as px
 from dash import Dash, Input, Output, State
 
+from better_roadmap.models.charts import RoadmapChart
+from better_roadmap.models.features import FeatureList
+from better_roadmap.models.parameters import Parameters
 
-from .chart import RoadmapChart
-from .features import Feature, FeatureList
 from .layout import layout
-from .parameters import Parameters
-from .scheduler import Scheduler
-from .span import FeatureDateSpans, GraphSegment
 
 APP_DIR = Path(os.getenv("APP_DIR", ".")).resolve()
 ASSETS_FOLDER = APP_DIR / "assets"

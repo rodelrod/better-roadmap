@@ -1,8 +1,8 @@
 from datetime import datetime
 import pytest
 
-import better_roadmap.scheduler as sut
-from better_roadmap.parameters import Phase
+import better_roadmap.models.scheduler as sut
+from better_roadmap.models.parameters import Phase
 
 
 class TestStateIsValid:

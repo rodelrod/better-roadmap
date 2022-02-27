@@ -6,7 +6,7 @@ from typing import Optional
 
 import yaml
 
-from .config import Config
+from ..config import Config
 
 APP_DIR = Path(os.getenv("APP_DIR", ".")).resolve()
 DEFAULT_PARAMETERS_FILE = APP_DIR / "data" / "default_parameters.yml"

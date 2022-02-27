@@ -5,7 +5,7 @@ from sys import maxsize
 from .features import Feature
 from .parameters import Phase
 from .span import FeatureDateSpans, FeatureSprintSpans, SprintSpan, GraphSegment
-from .utils import replace_min
+from ..utils import replace_min
 
 log = logging.getLogger(__name__)
 
