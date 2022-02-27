@@ -9,9 +9,9 @@ import pandas as pd
 import plotly.express as px
 from dash import Dash, Input, Output, State
 
-from .features import Feature, get_default_features_as_text, parse_features
+from .features import Feature, FeatureList
 from .layout import layout
-from .parameters import get_default_parameters_as_text, parse_parameters
+from .parameters import Parameters
 from .scheduler import Scheduler
 from .span import FeatureDateSpans, GraphSegment
 
@@ -29,7 +29,9 @@ app = Dash(
 def configure_app(someapp: Dash):
     fig = update_graph()
     someapp.layout = layout(
-        fig, get_default_features_as_text(), get_default_parameters_as_text()
+        fig,
+        FeatureList.get_default_features_text(),
+        Parameters.get_default_parameters_text(),
     )
 
 
@@ -104,9 +106,9 @@ def upload_parameters(content):
 
 def update_graph(features_text=None, parameters_text=None):
     graph_segments = []
-    parameters = parse_parameters(parameters_text)
+    parameters = Parameters.from_text(parameters_text)
     scheduler = Scheduler(parameters.phases)
-    for feature in parse_features(features_text):
+    for feature in FeatureList.from_text(features_text):
         graph_segments.extend(
             schedule_feature(feature, parameters.project_start, scheduler)
         )

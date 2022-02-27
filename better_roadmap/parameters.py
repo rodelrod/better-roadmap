@@ -9,7 +9,7 @@ import yaml
 from .config import Config
 
 APP_DIR = Path(os.getenv("APP_DIR", ".")).resolve()
-PARAMETERS_FILE = APP_DIR / "data" / "parameters.yml"
+DEFAULT_PARAMETERS_FILE = APP_DIR / "data" / "default_parameters.yml"
 
 
 @dataclass
@@ -35,27 +35,25 @@ class Parameters(Config):
     phases: list[Phase]
     sprint_durations: Optional[list[SprintDuration]] = None
 
-
-def parse_parameters(parameters_text) -> Parameters:
-    if parameters_text:
+    @classmethod
+    def from_text(cls, parameters_text: str):
+        if not parameters_text:
+            parameters_text = cls.get_default_parameters_text()
         parameters_dict = yaml.safe_load(parameters_text)
-    else:
-        with PARAMETERS_FILE.open() as parameters_file:
-            parameters_dict = yaml.safe_load(parameters_file)
-    parameters = Parameters.from_dict(
-        {
-            "project_start": parameters_dict["project_start"],
-            "default_sprint_duration": parameters_dict["default_sprint_duration"],
-            "phases": [Phase.from_dict(p) for p in parameters_dict["phases"]],
-            "sprint_durations": [
-                SprintDuration.from_dict(s) for s in parameters_dict["sprints"]
-            ],
-        }
-    )
-    return parameters
+        parameters = cls.from_dict(
+            {
+                "project_start": parameters_dict["project_start"],
+                "default_sprint_duration": parameters_dict["default_sprint_duration"],
+                "phases": [Phase.from_dict(p) for p in parameters_dict["phases"]],
+                "sprint_durations": [
+                    SprintDuration.from_dict(s) for s in parameters_dict["sprints"]
+                ],
+            }
+        )
+        return parameters
 
-
-def get_default_parameters_as_text() -> str:
-    with PARAMETERS_FILE.open() as parameters_file:
-        default_parameters = parameters_file.read()
-    return default_parameters
+    @staticmethod
+    def get_default_parameters_text() -> str:
+        with DEFAULT_PARAMETERS_FILE.open() as parameters_file:
+            default_parameters = parameters_file.read()
+        return default_parameters
