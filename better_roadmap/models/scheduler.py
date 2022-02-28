@@ -93,7 +93,7 @@ class Scheduler:
     def _get_estimation(self, feature: Feature, phase: Phase) -> int:
         if phase.name in feature.estimations:
             return feature.estimations[phase.name]
-        if phase.default_estimation:
+        if phase.default_estimation is not None:
             return phase.default_estimation
         raise ConfigurationError(
             f"Could not find an estimation for phase '{phase.name}'"

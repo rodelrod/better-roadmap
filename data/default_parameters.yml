@@ -10,7 +10,7 @@ phases:
     max_concurrency: 2
     min_gap_before: 0
     max_gap_after: 3
-    default_estimation: 1
+    default_estimation: 0
   - name: dev
     max_concurrency: 2
     min_gap_before: 1
