@@ -72,6 +72,43 @@ class TestScheduleFeature:
                     "dev": [9, 1],
                 }
 
+            def test_no_conception(self, phases):
+                scheduler_empty = sut.Scheduler(phases)
+                assert scheduler_empty.schedule_feature_as_sprints(
+                    sut.Feature(
+                        name="Skynet", estimations={"ux": 2, "conception": 0, "dev": 4}
+                    )
+                ) == sut.FeatureSprintSpans(
+                    feature="Skynet",
+                    spans=[
+                        sut.SprintSpan("ux", 1, 2),
+                        sut.SprintSpan("dev", 4, 7),
+                    ],
+                )
+                assert scheduler_empty._next_slots == {
+                    "ux": [3],
+                    "conception": [1, 1],
+                    "dev": [8, 1],
+                }
+
+            def test_only_dev(self, phases):
+                scheduler_empty = sut.Scheduler(phases)
+                assert scheduler_empty.schedule_feature_as_sprints(
+                    sut.Feature(
+                        name="Skynet", estimations={"ux": 0, "conception": 0, "dev": 4}
+                    )
+                ) == sut.FeatureSprintSpans(
+                    feature="Skynet",
+                    spans=[
+                        sut.SprintSpan("dev", 1, 4),
+                    ],
+                )
+                assert scheduler_empty._next_slots == {
+                    "ux": [1],
+                    "conception": [1, 1],
+                    "dev": [5, 1],
+                }
+
     class TestAsDates:
         def test_schedule_feature_in_first_sprint(self, scheduler):
             feature = {

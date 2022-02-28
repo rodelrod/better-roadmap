@@ -64,6 +64,7 @@ class Scheduler:
         feature: Feature,
         phase_list: list[Phase],
         prev_end: int,
+        no_phases_scheduled: bool = True,
     ) -> tuple[list[SprintSpan], int]:
         if not phase_list:
             return ([], maxsize)
@@ -71,16 +72,22 @@ class Scheduler:
         estimation = self._get_estimation(feature, cur_phase)
         phase_name = cur_phase.name
         min_available_slot = min(self._next_slots[phase_name])
-        min_start = max(prev_end + cur_phase.min_gap_before + 1, min_available_slot)
+        if no_phases_scheduled:
+            min_start = max(prev_end + 1, min_available_slot)
+        else:
+            min_start = max(prev_end + cur_phase.min_gap_before + 1, min_available_slot)
         min_end = min_start + estimation - 1
+        still_no_phases_scheduled = (estimation == 0) and no_phases_scheduled
         next_sprint_spans, next_start = self._schedule_phase(
-            feature, next_phases, min_end
+            feature, next_phases, min_end, still_no_phases_scheduled
         )
         if cur_phase.max_gap_after:
             end = max(min_end, next_start - cur_phase.max_gap_after)
         else:
             end = min_end
         start = end - estimation + 1
+        if estimation == 0:
+            return (next_sprint_spans, start)
         return ([SprintSpan(phase_name, start, end)] + next_sprint_spans, start)
 
     def _get_estimation(self, feature: Feature, phase: Phase) -> int:
