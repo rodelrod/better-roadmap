@@ -16,9 +16,9 @@ class TestSprintToDate:
 
     def test_sprint_to_start_date_with_longer_sprints(self):
         sprint_durations = [
-            sut.SprintDuration(2, 3),
-            sut.SprintDuration(3, 2),
-            sut.SprintDuration(6, 2),
+            sut.SprintDuration(number=2, duration=3),
+            sut.SprintDuration(number=3, duration=2),
+            sut.SprintDuration(number=6, duration=2),
         ]
         assert sut.sprint_to_start_date(
             sprint=5,
@@ -37,9 +37,9 @@ class TestScheduledSpan:
         sss = sut.FeatureSprintSpans(
             feature="Skynet",
             spans=[
-                sut.SprintSpan("ux", 1, 3),
-                sut.SprintSpan("conception", 4, 4),
-                sut.SprintSpan("dev", 6, 8),
+                sut.SprintSpan(phase="ux", start=1, end=3),
+                sut.SprintSpan(phase="conception", start=4, end=4),
+                sut.SprintSpan(phase="dev", start=6, end=8),
             ],
         )
         sts = sut.FeatureDateSpans(

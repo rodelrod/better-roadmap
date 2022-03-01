@@ -8,21 +8,30 @@ from better_roadmap.models.parameters import Phase
 class TestStateIsValid:
     class TestWhenInitialStateIsMalformed:
         def test_when_too_many_slots_in_ux_then_false(self):
-            phases = [Phase("ux", 1, 0), Phase("dev", 1, 0)]
+            phases = [
+                Phase(name="ux", max_concurrency=1, min_gap_before=0),
+                Phase(name="dev", max_concurrency=1, min_gap_before=0),
+            ]
             assert not sut.FeatureScheduler._state_is_valid(
                 phases,
                 state={"ux": [1, 1], "dev": [1]},
             )
 
         def test_when_too_few_slots_in_dev_then_false(self):
-            phases = [Phase("ux", 1, 0), Phase("dev", 4, 0)]
+            phases = [
+                Phase(name="ux", max_concurrency=1, min_gap_before=0),
+                Phase(name="dev", max_concurrency=4, min_gap_before=0),
+            ]
             assert not sut.FeatureScheduler._state_is_valid(
                 phases,
                 state={"ux": [1], "dev": [1, 1]},
             )
 
         def test_when_missing_phase_then_false(self):
-            phases = [Phase("ux", 1, 0), Phase("dev", 4, 0)]
+            phases = [
+                Phase(name="ux", max_concurrency=1, min_gap_before=0),
+                Phase(name="dev", max_concurrency=4, min_gap_before=0),
+            ]
             assert not sut.FeatureScheduler._state_is_valid(
                 phases,
                 state={"ux": [1]},
@@ -30,7 +39,10 @@ class TestStateIsValid:
 
     class TestWhenInitialStateIsWellformed:
         def test_when_slots_are_correct_then_true(self):
-            phases = [Phase("ux", 1, 0), Phase("dev", 4, 0)]
+            phases = [
+                Phase(name="ux", max_concurrency=1, min_gap_before=0),
+                Phase(name="dev", max_concurrency=4, min_gap_before=0),
+            ]
             assert sut.FeatureScheduler._state_is_valid(
                 phases,
                 state={"ux": [1], "dev": [1, 1, 1, 1]},
@@ -41,9 +53,15 @@ class TestScheduleFeature:
     @pytest.fixture
     def phases(self) -> list[Phase]:
         return [
-            Phase("ux", 1, 0),
-            Phase("conception", 2, 0, 3, 1),
-            Phase("dev", 2, 1),
+            Phase(name="ux", max_concurrency=1, min_gap_before=0),
+            Phase(
+                name="conception",
+                max_concurrency=2,
+                min_gap_before=0,
+                max_gap_after=3,
+                default_estimation=1,
+            ),
+            Phase(name="dev", max_concurrency=2, min_gap_before=1),
         ]
 
     @pytest.fixture
@@ -61,9 +79,9 @@ class TestScheduleFeature:
                 ) == sut.FeatureSprintSpans(
                     feature="Skynet",
                     spans=[
-                        sut.SprintSpan("ux", 1, 2),
-                        sut.SprintSpan("conception", 3, 3),
-                        sut.SprintSpan("dev", 5, 8),
+                        sut.SprintSpan(phase="ux", start=1, end=2),
+                        sut.SprintSpan(phase="conception", start=3, end=3),
+                        sut.SprintSpan(phase="dev", start=5, end=8),
                     ],
                 )
                 assert scheduler_empty._next_slots == {
@@ -81,8 +99,8 @@ class TestScheduleFeature:
                 ) == sut.FeatureSprintSpans(
                     feature="Skynet",
                     spans=[
-                        sut.SprintSpan("ux", 1, 2),
-                        sut.SprintSpan("dev", 4, 7),
+                        sut.SprintSpan(phase="ux", start=1, end=2),
+                        sut.SprintSpan(phase="dev", start=4, end=7),
                     ],
                 )
                 assert scheduler_empty._next_slots == {
@@ -100,7 +118,7 @@ class TestScheduleFeature:
                 ) == sut.FeatureSprintSpans(
                     feature="Skynet",
                     spans=[
-                        sut.SprintSpan("dev", 1, 4),
+                        sut.SprintSpan(phase="dev", start=1, end=4),
                     ],
                 )
                 assert scheduler_empty._next_slots == {

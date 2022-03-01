@@ -1,19 +1,17 @@
 import os
-from dataclasses import dataclass
-from datetime import datetime
+from datetime import date
 from pathlib import Path
+from pydantic import BaseModel
 from typing import Optional
 
 import yaml
 
-from .config import Config
 
 APP_DIR = Path(os.getenv("APP_DIR", ".")).resolve()
 DEFAULT_PARAMETERS_FILE = APP_DIR / "data" / "default_parameters.yml"
 
 
-@dataclass
-class Phase(Config):
+class Phase(BaseModel):
     name: str
     max_concurrency: int
     min_gap_before: int
@@ -22,15 +20,13 @@ class Phase(Config):
     valid_from_sprint: int = 1
 
 
-@dataclass
-class SprintDuration(Config):
+class SprintDuration(BaseModel):
     number: int
     duration: int
 
 
-@dataclass
-class Parameters(Config):
-    project_start: datetime
+class Parameters(BaseModel):
+    project_start: date
     default_sprint_duration: int
     phases: list[Phase]
     sprint_durations: Optional[list[SprintDuration]] = None
@@ -40,17 +36,7 @@ class Parameters(Config):
         if not parameters_text:
             parameters_text = cls.get_default_parameters_text()
         parameters_dict = yaml.safe_load(parameters_text)
-        parameters = cls.from_dict(
-            {
-                "project_start": parameters_dict["project_start"],
-                "default_sprint_duration": parameters_dict["default_sprint_duration"],
-                "phases": [Phase.from_dict(p) for p in parameters_dict["phases"]],
-                "sprint_durations": [
-                    SprintDuration.from_dict(s) for s in parameters_dict["sprints"]
-                ],
-            }
-        )
-        return parameters
+        return cls(**parameters_dict)
 
     @staticmethod
     def get_default_parameters_text() -> str:

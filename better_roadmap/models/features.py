@@ -1,17 +1,14 @@
 import os
-from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
-
-from .config import Config
+from pydantic import BaseModel
 
 APP_DIR = Path(os.getenv("APP_DIR", ".")).resolve()
 DEFAULT_FEATURES_FILE = APP_DIR / "data" / "default_features.yml"
 
 
-@dataclass
-class Feature(Config):
+class Feature(BaseModel):
     name: str
     estimations: dict[str, int]
 
@@ -22,7 +19,7 @@ class FeatureList(list[Feature]):
         if not features_text:
             features_text = cls.get_default_features_text()
         feature_dicts = yaml.safe_load(features_text)
-        features = [Feature.from_dict(d) for d in feature_dicts]
+        features = [Feature(**d) for d in feature_dicts]
         return features
 
     @staticmethod
