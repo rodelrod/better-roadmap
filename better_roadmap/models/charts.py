@@ -26,7 +26,7 @@ class RoadmapChart:
             (actuals_text, features_text, parameters_text),
         )
         scheduled_sprints = pd.DataFrame(
-            self._get_graph_segments(features_text, actuals_text, parameters_text)
+            self._get_graph_segments(actuals_text, features_text, parameters_text)
         )
         self.figure = self._configure_chart(scheduled_sprints)
 

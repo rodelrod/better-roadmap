@@ -28,8 +28,8 @@ def configure_app(someapp: Dash):
     fig = RoadmapChart().figure
     someapp.layout = layout(
         fig,
-        FeatureList.get_default_features_text(),
         ActualFeatureList.get_default_actuals_text(),
+        FeatureList.get_default_features_text(),
         Parameters.get_default_parameters_text(),
     )
 
