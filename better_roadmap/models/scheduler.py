@@ -1,7 +1,9 @@
 import logging
 from datetime import datetime
 from sys import maxsize
+from typing import Union
 
+from .actuals import ActualFeature
 from .features import Feature
 from .parameters import Phase
 from .span import FeatureDateSpans, FeatureSprintSpans, SprintSpan, GraphSegment
@@ -14,7 +16,7 @@ class ConfigurationError(Exception):
     pass
 
 
-class Scheduler:
+class FeatureScheduler:
     """Keep track of the latest sprints for each phase."""
 
     def __init__(
@@ -43,15 +45,25 @@ class Scheduler:
         return True
 
     def schedule_feature_as_dates(
-        self, feature: Feature, project_start: datetime
+        self, feature: Union[Feature, ActualFeature], project_start: datetime
     ) -> list[GraphSegment]:
-        feature_sprint_spans = self.schedule_feature_as_sprints(feature)
+        if isinstance(feature, Feature):
+            feature_sprint_spans = self._schedule_feature_as_sprints(feature)
+        else:
+            feature_sprint_spans = FeatureSprintSpans.from_actual_feature(feature)
         feature_date_spans = FeatureDateSpans.from_feature_sprint_spans(
             feature_sprint_spans, project_start=project_start
         )
         return feature_date_spans.get_graph_segments()
 
-    def schedule_feature_as_sprints(self, feature: Feature) -> FeatureSprintSpans:
+    def _sprint_to_date_spans(
+        self, feature_sprint_spans: FeatureSprintSpans, project_start: datetime
+    ):
+        return FeatureDateSpans.from_feature_sprint_spans(
+            feature_sprint_spans, project_start
+        )
+
+    def _schedule_feature_as_sprints(self, feature: Feature) -> FeatureSprintSpans:
         sprint_spans, _ = self._schedule_phase(feature, self.phases, 0)
 
         for sprint_span in sprint_spans:

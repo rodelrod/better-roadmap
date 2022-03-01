@@ -1,7 +1,6 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import yaml
 
@@ -15,8 +14,6 @@ DEFAULT_FEATURES_FILE = APP_DIR / "data" / "default_features.yml"
 class Feature(Config):
     name: str
     estimations: dict[str, int]
-    real_start: Optional[dict[str, int]] = None
-    real_duration: Optional[dict[str, int]] = None
 
 
 class FeatureList(list[Feature]):

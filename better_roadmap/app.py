@@ -6,6 +6,7 @@ from pathlib import Path
 import dash_bootstrap_components as dbc
 from dash import Dash, Input, Output, State
 
+from better_roadmap.models.actuals import ActualFeatureList
 from better_roadmap.models.charts import RoadmapChart
 from better_roadmap.models.features import FeatureList
 from better_roadmap.models.parameters import Parameters
@@ -28,19 +29,29 @@ def configure_app(someapp: Dash):
     someapp.layout = layout(
         fig,
         FeatureList.get_default_features_text(),
+        ActualFeatureList.get_default_actuals_text(),
         Parameters.get_default_parameters_text(),
     )
 
 
 @app.callback(
     Output("roadmap-graph", "figure"),
+    State("actuals-textarea", "value"),
     State("features-textarea", "value"),
     State("parameters-textarea", "value"),
+    Input("actuals-update-button", "n_clicks"),
     Input("features-update-button", "n_clicks"),
     Input("parameters-update-button", "n_clicks"),
 )
-def update_graph(features_text, parameters_text, _features_clicks, _parameters_clicks):
-    return RoadmapChart(features_text, parameters_text).figure
+def update_graph(
+    actuals_text,
+    features_text,
+    parameters_text,
+    _actuals_clicks,
+    _features_clicks,
+    _parameters_clicks,
+):
+    return RoadmapChart(actuals_text, features_text, parameters_text).figure
 
 
 @app.callback(

@@ -3,6 +3,7 @@ from typing import Optional
 from datetime import datetime, timedelta
 
 from .parameters import SprintDuration
+from .actuals import ActualFeature
 
 
 def sprint_to_end_date(
@@ -55,6 +56,16 @@ class FeatureSprintSpans:
     feature: str
     spans: list[SprintSpan]
 
+    @classmethod
+    def from_actual_feature(cls, actual_feature: ActualFeature):
+        return cls(
+            feature=actual_feature.name,
+            spans=[
+                SprintSpan(phase=phase, start=span.start, end=span.end)
+                for (phase, span) in actual_feature.actual.items()
+            ],
+        )
+
 
 @dataclass
 class DateSpan:
@@ -103,6 +114,13 @@ class FeatureDateSpans:
                 for sprint_span in feature_sprint_spans.spans
             ],
         )
+
+    @classmethod
+    def from_actual_feature(
+        cls, actual_feature: ActualFeature, project_start: datetime
+    ):
+        feature_sprint_spans = FeatureSprintSpans.from_actual_feature(actual_feature)
+        return cls.from_feature_sprint_spans(feature_sprint_spans, project_start)
 
     def get_graph_segments(self) -> list[GraphSegment]:
         return [

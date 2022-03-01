@@ -9,21 +9,21 @@ class TestStateIsValid:
     class TestWhenInitialStateIsMalformed:
         def test_when_too_many_slots_in_ux_then_false(self):
             phases = [Phase("ux", 1, 0), Phase("dev", 1, 0)]
-            assert not sut.Scheduler._state_is_valid(
+            assert not sut.FeatureScheduler._state_is_valid(
                 phases,
                 state={"ux": [1, 1], "dev": [1]},
             )
 
         def test_when_too_few_slots_in_dev_then_false(self):
             phases = [Phase("ux", 1, 0), Phase("dev", 4, 0)]
-            assert not sut.Scheduler._state_is_valid(
+            assert not sut.FeatureScheduler._state_is_valid(
                 phases,
                 state={"ux": [1], "dev": [1, 1]},
             )
 
         def test_when_missing_phase_then_false(self):
             phases = [Phase("ux", 1, 0), Phase("dev", 4, 0)]
-            assert not sut.Scheduler._state_is_valid(
+            assert not sut.FeatureScheduler._state_is_valid(
                 phases,
                 state={"ux": [1]},
             )
@@ -31,7 +31,7 @@ class TestStateIsValid:
     class TestWhenInitialStateIsWellformed:
         def test_when_slots_are_correct_then_true(self):
             phases = [Phase("ux", 1, 0), Phase("dev", 4, 0)]
-            assert sut.Scheduler._state_is_valid(
+            assert sut.FeatureScheduler._state_is_valid(
                 phases,
                 state={"ux": [1], "dev": [1, 1, 1, 1]},
             )
@@ -48,13 +48,13 @@ class TestScheduleFeature:
 
     @pytest.fixture
     def scheduler(self, phases):
-        return sut.Scheduler(phases)
+        return sut.FeatureScheduler(phases)
 
     class TestAsSprints:
         class TestWhenIsFirstFeature:
             def test_ux_estimation_2_and_dev_estimation_4(self, phases):
-                scheduler_empty = sut.Scheduler(phases)
-                assert scheduler_empty.schedule_feature_as_sprints(
+                scheduler_empty = sut.FeatureScheduler(phases)
+                assert scheduler_empty._schedule_feature_as_sprints(
                     sut.Feature(
                         name="Skynet", estimations={"ux": 2, "conception": 1, "dev": 4}
                     )
@@ -73,8 +73,8 @@ class TestScheduleFeature:
                 }
 
             def test_no_conception(self, phases):
-                scheduler_empty = sut.Scheduler(phases)
-                assert scheduler_empty.schedule_feature_as_sprints(
+                scheduler_empty = sut.FeatureScheduler(phases)
+                assert scheduler_empty._schedule_feature_as_sprints(
                     sut.Feature(
                         name="Skynet", estimations={"ux": 2, "conception": 0, "dev": 4}
                     )
@@ -92,8 +92,8 @@ class TestScheduleFeature:
                 }
 
             def test_only_dev(self, phases):
-                scheduler_empty = sut.Scheduler(phases)
-                assert scheduler_empty.schedule_feature_as_sprints(
+                scheduler_empty = sut.FeatureScheduler(phases)
+                assert scheduler_empty._schedule_feature_as_sprints(
                     sut.Feature(
                         name="Skynet", estimations={"ux": 0, "conception": 0, "dev": 4}
                     )
