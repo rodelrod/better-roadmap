@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import date
 from sys import maxsize
 from typing import Union
 
@@ -45,7 +45,7 @@ class FeatureScheduler:
         return True
 
     def schedule_feature_as_dates(
-        self, feature: Union[Feature, ActualFeature], project_start: datetime
+        self, feature: Union[Feature, ActualFeature], project_start: date
     ) -> list[GraphSegment]:
         if isinstance(feature, Feature):
             feature_sprint_spans = self._schedule_feature_as_sprints(feature)
@@ -57,7 +57,7 @@ class FeatureScheduler:
         return feature_date_spans.get_graph_segments()
 
     def _sprint_to_date_spans(
-        self, feature_sprint_spans: FeatureSprintSpans, project_start: datetime
+        self, feature_sprint_spans: FeatureSprintSpans, project_start: date
     ):
         return FeatureDateSpans.from_feature_sprint_spans(
             feature_sprint_spans, project_start

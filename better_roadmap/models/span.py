@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 
 from .parameters import SprintDuration
 from .actuals import ActualFeature
@@ -8,10 +8,10 @@ from .actuals import ActualFeature
 
 def sprint_to_end_date(
     sprint: int,
-    project_start: datetime,
+    project_start: date,
     sprint_durations: Optional[list[SprintDuration]] = None,
     default_sprint_duration: int = 1,
-) -> datetime:
+) -> date:
     atypical_sprints = []
     atypical_sprints_in_weeks = 0
     if sprint_durations:
@@ -25,10 +25,10 @@ def sprint_to_end_date(
 
 def sprint_to_start_date(
     sprint: int,
-    project_start: datetime,
+    project_start: date,
     sprint_durations: Optional[list[SprintDuration]] = None,
     default_sprint_duration=1,
-) -> datetime:
+) -> date:
     return sprint_to_end_date(
         sprint - 1, project_start, sprint_durations, default_sprint_duration
     )
@@ -39,8 +39,8 @@ class GraphSegment:
     """Scheduled span for a Feature to be developed, ready to be put in the Roadmap."""
 
     feature: str
-    start: datetime
-    end: datetime
+    start: date
+    end: date
     phase: str
 
 
@@ -70,14 +70,14 @@ class FeatureSprintSpans:
 @dataclass
 class DateSpan:
     phase: str
-    start: datetime
-    end: datetime
+    start: date
+    end: date
 
     @classmethod
     def from_sprint_span(
         cls,
         sprint_span: SprintSpan,
-        project_start: datetime,
+        project_start: date,
         sprint_durations: Optional[list[SprintDuration]] = None,
         default_sprint_duration: int = 1,
     ):
@@ -105,7 +105,7 @@ class FeatureDateSpans:
 
     @classmethod
     def from_feature_sprint_spans(
-        cls, feature_sprint_spans: FeatureSprintSpans, project_start: datetime
+        cls, feature_sprint_spans: FeatureSprintSpans, project_start: date
     ):
         return cls(
             feature=feature_sprint_spans.feature,
@@ -116,9 +116,7 @@ class FeatureDateSpans:
         )
 
     @classmethod
-    def from_actual_feature(
-        cls, actual_feature: ActualFeature, project_start: datetime
-    ):
+    def from_actual_feature(cls, actual_feature: ActualFeature, project_start: date):
         feature_sprint_spans = FeatureSprintSpans.from_actual_feature(actual_feature)
         return cls.from_feature_sprint_spans(feature_sprint_spans, project_start)
 
