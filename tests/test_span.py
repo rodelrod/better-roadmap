@@ -3,35 +3,6 @@ import better_roadmap.models.span as sut
 from datetime import date
 
 
-class TestSprintToDate:
-    def test_sprint_to_start_date(self):
-        assert sut.sprint_to_start_date(
-            sprint=3, project_start=date(2022, 1, 6)
-        ) == date(2022, 1, 20)
-
-    def test_sprint_to_end_date(self):
-        assert sut.sprint_to_end_date(sprint=3, project_start=date(2022, 1, 6)) == date(
-            2022, 1, 27
-        )
-
-    def test_sprint_to_start_date_with_longer_sprints(self):
-        sprint_durations = [
-            sut.SprintDuration(number=2, duration=3),
-            sut.SprintDuration(number=3, duration=2),
-            sut.SprintDuration(number=6, duration=2),
-        ]
-        assert sut.sprint_to_start_date(
-            sprint=5,
-            project_start=date(2022, 1, 6),
-            sprint_durations=sprint_durations,
-        ) == date(2022, 2, 24)
-
-    def test_sprint_to_start_date_with_custom_sprint_duration(self):
-        assert sut.sprint_to_start_date(
-            sprint=5, project_start=date(2022, 1, 6), default_sprint_duration=2
-        ) == date(2022, 3, 3)
-
-
 class TestScheduledSpan:
     def test_sprint_to_date_spans(self):
         sss = sut.FeatureSprintSpans(
