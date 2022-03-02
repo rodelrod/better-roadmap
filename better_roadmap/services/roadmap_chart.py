@@ -4,12 +4,11 @@ import pandas as pd
 import plotly.express as px
 from plotly.graph_objects import Figure
 
+from better_roadmap.models.elapsed import ElapsedFeatureList
+from better_roadmap.models.features import FeatureList
+from better_roadmap.models.parameters import Parameters
 from better_roadmap.models.span import GraphSegment
-
-from .elapsed import ElapsedFeatureList
-from .features import FeatureList
-from .parameters import Parameters
-from .scheduler import FeatureScheduler
+from better_roadmap.services.scheduler import FeatureScheduler
 
 
 class RoadmapChart:

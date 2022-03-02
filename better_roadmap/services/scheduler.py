@@ -3,11 +3,11 @@ from datetime import date
 from sys import maxsize
 from typing import Union
 
-from .elapsed import ElapsedFeature
-from .features import Feature
-from .parameters import Phase
-from .span import FeatureDateSpans, FeatureSprintSpans, SprintSpan, GraphSegment
-from ..utils import replace_min
+from better_roadmap.models.elapsed import ElapsedFeature
+from better_roadmap.models.features import Feature
+from better_roadmap.models.parameters import Phase
+from better_roadmap.models.span import FeatureDateSpans, FeatureSprintSpans, SprintSpan, GraphSegment
+from better_roadmap.utils import replace_min
 
 log = logging.getLogger(__name__)
 

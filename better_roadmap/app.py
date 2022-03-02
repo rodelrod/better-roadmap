@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 from dash import Dash, Input, Output, State
 
 from better_roadmap.models.elapsed import ElapsedFeatureList
-from better_roadmap.models.charts import RoadmapChart
+from better_roadmap.services.roadmap_chart import RoadmapChart
 from better_roadmap.models.features import FeatureList
 from better_roadmap.models.parameters import Parameters
 
