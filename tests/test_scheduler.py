@@ -72,7 +72,7 @@ class TestScheduleFeature:
         class TestWhenIsFirstFeature:
             def test_ux_estimation_2_and_dev_estimation_4(self, phases):
                 scheduler_empty = sut.FeatureScheduler(phases)
-                assert scheduler_empty._schedule_feature_as_sprints(
+                assert scheduler_empty.schedule_feature_as_sprints(
                     sut.Feature(
                         name="Skynet", estimations={"ux": 2, "conception": 1, "dev": 4}
                     )
@@ -92,7 +92,7 @@ class TestScheduleFeature:
 
             def test_no_conception(self, phases):
                 scheduler_empty = sut.FeatureScheduler(phases)
-                assert scheduler_empty._schedule_feature_as_sprints(
+                assert scheduler_empty.schedule_feature_as_sprints(
                     sut.Feature(
                         name="Skynet", estimations={"ux": 2, "conception": 0, "dev": 4}
                     )
@@ -111,7 +111,7 @@ class TestScheduleFeature:
 
             def test_only_dev(self, phases):
                 scheduler_empty = sut.FeatureScheduler(phases)
-                assert scheduler_empty._schedule_feature_as_sprints(
+                assert scheduler_empty.schedule_feature_as_sprints(
                     sut.Feature(
                         name="Skynet", estimations={"ux": 0, "conception": 0, "dev": 4}
                     )
