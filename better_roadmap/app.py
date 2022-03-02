@@ -55,6 +55,18 @@ def update_graph(
 
 
 @app.callback(
+    Output("elapsed-download", "data"),
+    Input("elapsed-download-button", "n_clicks"),
+    State("elapsed-textarea", "value"),
+    prevent_initial_call=True,
+)
+def download_elapsed(_, elapsed_text: str):
+    now = datetime.now()
+    filename = f"elapsed_{now:%Y%m%dT%H%M}.yml"
+    return {"content": elapsed_text, "filename": filename}
+
+
+@app.callback(
     Output("features-download", "data"),
     Input("features-download-button", "n_clicks"),
     State("features-textarea", "value"),
@@ -76,6 +88,17 @@ def download_parameters(_, parameters_text: str):
     now = datetime.now()
     filename = f"parameters_{now:%Y%m%dT%H%M}.yml"
     return {"content": parameters_text, "filename": filename}
+
+@app.callback(
+    Output("elapsed-textarea", "value"),
+    Input("elapsed-upload", "contents"),
+    prevent_initial_call=True,
+)
+def upload_elapsed(content):
+    if not content:
+        return
+    _content_type, content_string = content.split(",")
+    return b64decode(content_string).decode("utf-8")
 
 
 @app.callback(
