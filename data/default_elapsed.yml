@@ -1,0 +1,20 @@
+---
+- name: "Twitter scraper"
+  elapsed:
+    ux:
+      start: 1
+      end: 2
+    dev:
+      start: 4
+      end: 6
+- name: "Amazon robot"
+  elapsed:
+    ux:
+      start: 2
+      end: 5
+    conception:
+      start: 6
+      end: 6
+    dev:
+      start: 8
+      end: 10

@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 
-def tab_features(features_text: str) -> dbc.Tab:
+def tab_elapsed(elapsed_text: str) -> dbc.Tab:
 
     return dbc.Tab(
         dbc.Card(
@@ -11,10 +11,10 @@ def tab_features(features_text: str) -> dbc.Tab:
                     dbc.Row(
                         [
                             dbc.Col(
-                                features_textarea(features_text),
+                                elapsed_textarea(elapsed_text),
                             ),
                             dbc.Col(
-                                features_buttons(),
+                                elapsed_buttons(),
                             ),
                         ],
                     )
@@ -22,21 +22,21 @@ def tab_features(features_text: str) -> dbc.Tab:
             ),
             style={"borderTop": "none"},
         ),
-        label="🏆 Planned Features",
+        label="✅ Elapsed Sprints",
     )
 
 
-def features_textarea(features_text: str) -> dbc.Textarea:
+def elapsed_textarea(elapsed_text: str) -> dbc.Textarea:
     return dbc.Textarea(
-        id="features-textarea",
-        value=features_text,
+        id="elapsed-textarea",
+        value=elapsed_text,
         rows=30,
         persistence=True,
         persistence_type="local",
     )
 
 
-def features_buttons() -> list[dbc.Row]:
+def elapsed_buttons() -> list[dbc.Row]:
     return [
         dbc.Row(
             dbc.ButtonGroup(
@@ -48,11 +48,11 @@ def features_buttons() -> list[dbc.Row]:
                                 html.I(className="bi bi-bar-chart-steps ms-2"),
                             ]
                         ),
-                        id="features-update-button",
+                        id="elapsed-update-button",
                         n_clicks=0,
                         className="btn-lg",
                     ),
-                    dcc.Download(id="features-download"),
+                    dcc.Download(id="elapsed-download"),
                     dbc.Button(
                         html.Span(
                             [
@@ -60,7 +60,7 @@ def features_buttons() -> list[dbc.Row]:
                                 html.I(className="bi bi-download ms-2"),
                             ]
                         ),
-                        id="features-download-button",
+                        id="elapsed-download-button",
                         n_clicks=0,
                         className="btn-lg",
                     ),
@@ -75,7 +75,7 @@ def features_buttons() -> list[dbc.Row]:
                     color="primary",
                     className="text-center d-grid gap-2 col-8 mx-auto",
                     children=dcc.Upload(
-                        id="features-upload",
+                        id="elapsed-upload",
                         children=[
                             html.I(
                                 className="bi bi-cloud-upload me-2",

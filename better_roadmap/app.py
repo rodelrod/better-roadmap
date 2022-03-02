@@ -6,6 +6,7 @@ from pathlib import Path
 import dash_bootstrap_components as dbc
 from dash import Dash, Input, Output, State
 
+from better_roadmap.models.elapsed import ElapsedFeatureList
 from better_roadmap.models.charts import RoadmapChart
 from better_roadmap.models.features import FeatureList
 from better_roadmap.models.parameters import Parameters
@@ -27,6 +28,7 @@ def configure_app(someapp: Dash):
     fig = RoadmapChart().figure
     someapp.layout = layout(
         fig,
+        ElapsedFeatureList.get_default_elapsed_text(),
         FeatureList.get_default_features_text(),
         Parameters.get_default_parameters_text(),
     )
@@ -34,13 +36,34 @@ def configure_app(someapp: Dash):
 
 @app.callback(
     Output("roadmap-graph", "figure"),
+    State("elapsed-textarea", "value"),
     State("features-textarea", "value"),
     State("parameters-textarea", "value"),
+    Input("elapsed-update-button", "n_clicks"),
     Input("features-update-button", "n_clicks"),
     Input("parameters-update-button", "n_clicks"),
 )
-def update_graph(features_text, parameters_text, _features_clicks, _parameters_clicks):
-    return RoadmapChart(features_text, parameters_text).figure
+def update_graph(
+    elapsed_text,
+    features_text,
+    parameters_text,
+    _elapsed_clicks,
+    _features_clicks,
+    _parameters_clicks,
+):
+    return RoadmapChart(elapsed_text, features_text, parameters_text).figure
+
+
+@app.callback(
+    Output("elapsed-download", "data"),
+    Input("elapsed-download-button", "n_clicks"),
+    State("elapsed-textarea", "value"),
+    prevent_initial_call=True,
+)
+def download_elapsed(_, elapsed_text: str):
+    now = datetime.now()
+    filename = f"elapsed_{now:%Y%m%dT%H%M}.yml"
+    return {"content": elapsed_text, "filename": filename}
 
 
 @app.callback(
@@ -65,6 +88,17 @@ def download_parameters(_, parameters_text: str):
     now = datetime.now()
     filename = f"parameters_{now:%Y%m%dT%H%M}.yml"
     return {"content": parameters_text, "filename": filename}
+
+@app.callback(
+    Output("elapsed-textarea", "value"),
+    Input("elapsed-upload", "contents"),
+    prevent_initial_call=True,
+)
+def upload_elapsed(content):
+    if not content:
+        return
+    _content_type, content_string = content.split(",")
+    return b64decode(content_string).decode("utf-8")
 
 
 @app.callback(
