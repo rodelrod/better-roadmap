@@ -1,6 +1,6 @@
 import os
 from base64 import b64decode
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 import dash_bootstrap_components as dbc
@@ -61,8 +61,8 @@ def update_graph(
     prevent_initial_call=True,
 )
 def download_elapsed(_, elapsed_text: str):
-    now = datetime.now()
-    filename = f"elapsed_{now:%Y%m%dT%H%M}.yml"
+    today = date.today()
+    filename = f"elapsed_{today:%Y%m%dT%H%M}.yml"
     return {"content": elapsed_text, "filename": filename}
 
 
@@ -88,6 +88,7 @@ def download_parameters(_, parameters_text: str):
     now = datetime.now()
     filename = f"parameters_{now:%Y%m%dT%H%M}.yml"
     return {"content": parameters_text, "filename": filename}
+
 
 @app.callback(
     Output("elapsed-textarea", "value"),

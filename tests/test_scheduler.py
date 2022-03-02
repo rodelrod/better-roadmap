@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 import pytest
 
 import better_roadmap.models.scheduler as sut
@@ -137,25 +137,23 @@ class TestScheduleFeature:
             feature = sut.Feature(
                 name="Internal Blast", estimations={"ux": 2, "dev": 4}
             )
-            assert scheduler.schedule_feature_as_dates(
-                feature, datetime(2021, 10, 1)
-            ) == [
+            assert scheduler.schedule_feature_as_dates(feature, date(2021, 10, 1)) == [
                 sut.GraphSegment(
                     feature="Internal Blast",
-                    start=datetime(2021, 10, 1),
-                    end=datetime(2021, 10, 15),
+                    start=date(2021, 10, 1),
+                    end=date(2021, 10, 15),
                     phase="ux",
                 ),
                 sut.GraphSegment(
                     feature="Internal Blast",
-                    start=datetime(2021, 10, 15),
-                    end=datetime(2021, 10, 22),
+                    start=date(2021, 10, 15),
+                    end=date(2021, 10, 22),
                     phase="conception",
                 ),
                 sut.GraphSegment(
                     feature="Internal Blast",
-                    start=datetime(2021, 10, 29),
-                    end=datetime(2021, 11, 26),
+                    start=date(2021, 10, 29),
+                    end=date(2021, 11, 26),
                     phase="dev",
                 ),
             ]
