@@ -3,7 +3,7 @@ from datetime import date
 from sys import maxsize
 from typing import Union
 
-from .actuals import ActualFeature
+from .elapsed import ElapsedFeature
 from .features import Feature
 from .parameters import Phase
 from .span import FeatureDateSpans, FeatureSprintSpans, SprintSpan, GraphSegment
@@ -45,12 +45,12 @@ class FeatureScheduler:
         return True
 
     def schedule_feature_as_dates(
-        self, feature: Union[Feature, ActualFeature], project_start: date
+        self, feature: Union[Feature, ElapsedFeature], project_start: date
     ) -> list[GraphSegment]:
         if isinstance(feature, Feature):
             feature_sprint_spans = self._get_sprint_spans_for_feature(feature)
         else:
-            feature_sprint_spans = FeatureSprintSpans.from_actual_feature(feature)
+            feature_sprint_spans = FeatureSprintSpans.from_elapsed_feature(feature)
         self._update_next_slots(feature_sprint_spans)
         feature_date_spans = FeatureDateSpans.from_feature_sprint_spans(
             feature_sprint_spans, project_start=project_start

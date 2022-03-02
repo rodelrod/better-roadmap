@@ -6,7 +6,7 @@ from plotly.graph_objects import Figure
 
 from better_roadmap.models.span import GraphSegment
 
-from .actuals import ActualFeatureList
+from .elapsed import ElapsedFeatureList
 from .features import FeatureList
 from .parameters import Parameters
 from .scheduler import FeatureScheduler
@@ -15,7 +15,7 @@ from .scheduler import FeatureScheduler
 class RoadmapChart:
     def __init__(
         self,
-        actuals_text: Optional[str] = None,
+        elapsed_text: Optional[str] = None,
         features_text: Optional[str] = None,
         parameters_text: Optional[str] = None,
     ):
@@ -23,10 +23,10 @@ class RoadmapChart:
         # case we use the defaults from the yaml files in the server
         cast(
             Optional[tuple[str, str, str]],
-            (actuals_text, features_text, parameters_text),
+            (elapsed_text, features_text, parameters_text),
         )
         scheduled_sprints = pd.DataFrame(
-            self._get_graph_segments(actuals_text, features_text, parameters_text)
+            self._get_graph_segments(elapsed_text, features_text, parameters_text)
         )
         self.figure = self._configure_chart(scheduled_sprints)
 
@@ -40,17 +40,17 @@ class RoadmapChart:
 
     @staticmethod
     def _get_graph_segments(
-        actuals_text: Optional[str],
+        elapsed_text: Optional[str],
         features_text: Optional[str],
         parameters_text: Optional[str],
     ) -> list[GraphSegment]:
         graph_segments = []
         parameters = Parameters.from_text(parameters_text)
         scheduler = FeatureScheduler(parameters.phases)
-        for actual_feature in ActualFeatureList.from_text(actuals_text):
+        for elapsed_feature in ElapsedFeatureList.from_text(elapsed_text):
             graph_segments.extend(
                 scheduler.schedule_feature_as_dates(
-                    actual_feature, parameters.project_start
+                    elapsed_feature, parameters.project_start
                 )
             )
         for feature in FeatureList.from_text(features_text):

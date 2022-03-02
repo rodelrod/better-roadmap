@@ -1,6 +1,6 @@
 ---
 - name: "Twitter scraper"
-  actual:
+  elapsed:
     ux:
       start: 1
       end: 2
@@ -8,7 +8,7 @@
       start: 4
       end: 6
 - name: "Amazon robot"
-  actual:
+  elapsed:
     ux:
       start: 2
       end: 5
