@@ -1,37 +1,10 @@
 from dataclasses import dataclass
 from typing import Optional
-from datetime import date, timedelta
+from datetime import date
 
 from .parameters import SprintDuration
 from .elapsed import ElapsedFeature
-
-
-def sprint_to_end_date(
-    sprint: int,
-    project_start: date,
-    sprint_durations: Optional[list[SprintDuration]] = None,
-    default_sprint_duration: int = 1,
-) -> date:
-    atypical_sprints = []
-    atypical_sprints_in_weeks = 0
-    if sprint_durations:
-        atypical_sprints = [sd for sd in sprint_durations if sd.number <= sprint]
-        atypical_sprints_in_weeks = sum(sd.duration for sd in atypical_sprints)
-    normal_sprints_in_weeks = (sprint - len(atypical_sprints)) * default_sprint_duration
-    return project_start + timedelta(
-        weeks=(atypical_sprints_in_weeks + normal_sprints_in_weeks)
-    )
-
-
-def sprint_to_start_date(
-    sprint: int,
-    project_start: date,
-    sprint_durations: Optional[list[SprintDuration]] = None,
-    default_sprint_duration=1,
-) -> date:
-    return sprint_to_end_date(
-        sprint - 1, project_start, sprint_durations, default_sprint_duration
-    )
+from ..services.sprint_to_date import sprint_to_end_date, sprint_to_start_date
 
 
 @dataclass
@@ -105,20 +78,24 @@ class FeatureDateSpans:
 
     @classmethod
     def from_feature_sprint_spans(
-        cls, feature_sprint_spans: FeatureSprintSpans, project_start: date
+        cls,
+        feature_sprint_spans: FeatureSprintSpans,
+        project_start: date,
+        sprint_durations: list[SprintDuration] = None,
+        default_sprint_duration: int = 1,
     ):
         return cls(
             feature=feature_sprint_spans.feature,
             spans=[
-                DateSpan.from_sprint_span(sprint_span, project_start)
+                DateSpan.from_sprint_span(
+                    sprint_span,
+                    project_start,
+                    sprint_durations,
+                    default_sprint_duration,
+                )
                 for sprint_span in feature_sprint_spans.spans
             ],
         )
-
-    @classmethod
-    def from_elapsed_feature(cls, elapsed_feature: ElapsedFeature, project_start: date):
-        feature_sprint_spans = FeatureSprintSpans.from_elapsed_feature(elapsed_feature)
-        return cls.from_feature_sprint_spans(feature_sprint_spans, project_start)
 
     def get_graph_segments(self) -> list[GraphSegment]:
         return [

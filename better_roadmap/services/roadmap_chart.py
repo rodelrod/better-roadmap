@@ -4,12 +4,11 @@ import pandas as pd
 import plotly.express as px
 from plotly.graph_objects import Figure
 
+from better_roadmap.models.elapsed import ElapsedFeatureList
+from better_roadmap.models.features import FeatureList
+from better_roadmap.models.parameters import Parameters
 from better_roadmap.models.span import GraphSegment
-
-from .elapsed import ElapsedFeatureList
-from .features import FeatureList
-from .parameters import Parameters
-from .scheduler import FeatureScheduler
+from better_roadmap.services.scheduler import FeatureScheduler
 
 
 class RoadmapChart:
@@ -48,13 +47,19 @@ class RoadmapChart:
         parameters = Parameters.from_text(parameters_text)
         scheduler = FeatureScheduler(parameters.phases)
         for elapsed_feature in ElapsedFeatureList.from_text(elapsed_text):
-            graph_segments.extend(
-                scheduler.schedule_feature_as_dates(
-                    elapsed_feature, parameters.project_start
-                )
+            elapsed_feature_segments = scheduler.schedule_feature_as_dates(
+                elapsed_feature,
+                parameters.project_start,
+                parameters.default_sprint_duration,
+                parameters.sprint_durations,
             )
+            graph_segments.extend(elapsed_feature_segments)
         for feature in FeatureList.from_text(features_text):
-            graph_segments.extend(
-                scheduler.schedule_feature_as_dates(feature, parameters.project_start)
+            feature_segments = scheduler.schedule_feature_as_dates(
+                feature,
+                parameters.project_start,
+                parameters.default_sprint_duration,
+                parameters.sprint_durations,
             )
+            graph_segments.extend(feature_segments)
         return graph_segments

@@ -1,13 +1,18 @@
 import logging
 from datetime import date
 from sys import maxsize
-from typing import Union
+from typing import Optional, Union
 
-from .elapsed import ElapsedFeature
-from .features import Feature
-from .parameters import Phase
-from .span import FeatureDateSpans, FeatureSprintSpans, SprintSpan, GraphSegment
-from ..utils import replace_min
+from better_roadmap.models.elapsed import ElapsedFeature
+from better_roadmap.models.features import Feature
+from better_roadmap.models.parameters import Phase, SprintDuration
+from better_roadmap.models.span import (
+    FeatureDateSpans,
+    FeatureSprintSpans,
+    SprintSpan,
+    GraphSegment,
+)
+from better_roadmap.utils import replace_min
 
 log = logging.getLogger(__name__)
 
@@ -45,7 +50,11 @@ class FeatureScheduler:
         return True
 
     def schedule_feature_as_dates(
-        self, feature: Union[Feature, ElapsedFeature], project_start: date
+        self,
+        feature: Union[Feature, ElapsedFeature],
+        project_start: date,
+        default_sprint_duration: int = 1,
+        sprint_durations: Optional[list[SprintDuration]] = None,
     ) -> list[GraphSegment]:
         if isinstance(feature, Feature):
             feature_sprint_spans = self._get_sprint_spans_for_feature(feature)
@@ -53,7 +62,10 @@ class FeatureScheduler:
             feature_sprint_spans = FeatureSprintSpans.from_elapsed_feature(feature)
         self._update_next_slots(feature_sprint_spans)
         feature_date_spans = FeatureDateSpans.from_feature_sprint_spans(
-            feature_sprint_spans, project_start=project_start
+            feature_sprint_spans,
+            project_start,
+            sprint_durations,
+            default_sprint_duration,
         )
         return feature_date_spans.get_graph_segments()
 

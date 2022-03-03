@@ -1,7 +1,7 @@
 from datetime import date
 import pytest
 
-import better_roadmap.models.scheduler as sut
+import better_roadmap.services.scheduler as sut
 from better_roadmap.models.parameters import Phase
 
 
