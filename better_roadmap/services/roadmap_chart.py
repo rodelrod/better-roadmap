@@ -32,7 +32,13 @@ class RoadmapChart:
     @staticmethod
     def _configure_chart(df: pd.DataFrame) -> Figure:
         fig = px.timeline(
-            df, x_start="start", x_end="end", y="feature", color="phase", height=720
+            df,
+            x_start="start",
+            x_end="end",
+            y="feature",
+            color="phase",
+            height=720,
+            color_discrete_sequence=px.colors.qualitative.Pastel,
         )
         fig.update_yaxes(autorange="reversed")
         return fig
