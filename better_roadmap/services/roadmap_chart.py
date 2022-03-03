@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional, cast
 
 import pandas as pd
@@ -41,6 +42,7 @@ class RoadmapChart:
             color_discrete_sequence=px.colors.qualitative.Pastel,
         )
         fig.update_yaxes(autorange="reversed")
+        fig.add_vline(x=date.today())
         return fig
 
     @staticmethod
