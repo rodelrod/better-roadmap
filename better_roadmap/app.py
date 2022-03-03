@@ -6,6 +6,7 @@ from pathlib import Path
 import dash_bootstrap_components as dbc
 from dash import Dash, Input, Output, State
 from pydantic import ValidationError
+from yaml.parser import ParserError
 
 from better_roadmap.models.elapsed import ElapsedFeatureList
 from better_roadmap.models.features import FeatureList
@@ -134,46 +135,19 @@ def upload_parameters(content):
 @app.callback(
     Output("elapsed-textarea", "valid"),
     Output("elapsed-textarea", "invalid"),
+    Output("elapsed-validation-alert", "is_open"),
+    Output("elapsed-validation-alert-text", "children"),
     State("elapsed-textarea", "value"),
     Input("elapsed-textarea", "n_blur"),
 )
 def validate_elapsed_text(elapsed_text, _):
     try:
         ElapsedFeatureList.from_text(elapsed_text)
+    except ParserError:
+        return False, True, True, "Yaml parsing error"
     except ValidationError as e:
-        print(e)
-        return False, True
-    return True, False
-
-
-@app.callback(
-    Output("features-textarea", "valid"),
-    Output("features-textarea", "invalid"),
-    State("features-textarea", "value"),
-    Input("features-textarea", "n_blur"),
-)
-def validate_features_text(features_text, _):
-    try:
-        FeatureList.from_text(features_text)
-    except ValidationError as e:
-        print(e)
-        return False, True
-    return True, False
-
-
-@app.callback(
-    Output("parameters-textarea", "valid"),
-    Output("parameters-textarea", "invalid"),
-    State("parameters-textarea", "value"),
-    Input("parameters-textarea", "n_blur"),
-)
-def validate_parameters_text(parameters_text, _):
-    try:
-        Parameters.from_text(parameters_text)
-    except ValidationError as e:
-        print(e)
-        return False, True
-    return True, False
+        return False, True, True, str(e)
+    return True, False, False, ""
 
 
 configure_app(app)
