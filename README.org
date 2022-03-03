@@ -1,8 +1,52 @@
 #+TITLE: README
 * Purpose
 Create a Gantt chart-y longterm roadmap for a Scrum project.
+
+* Functionality
+
+The chart is shown in a web interface. The web interface allows entering the data in text areas using Yaml.
+
+Features are scheduled automatically based on manually entered estimations. The list of features with their estimations is entered in Yaml in the web interface.
+
+Each feature can have multiple sequencial phases (e.g. UX, Conception, Dev) which are graphed in a single row. Most Gantt chart tools to no allow this.
+
+As the project advances, we can set the actual elapsed time for each feature. The scheduled features in the future are recalculated.
+
+The most important requirements for the project are:
+- The data is not stored in the server (see [[Data protection]])
+- We can easily change the estimations, add or reorder a feature, and have the chart be recalculated.
+- The chart is hosted on the web so that all team members can use it by sharing the data files (out of band).
+
+
 * Installation
-Dependencies for SciPy (via Pandas):
+Dependencies that should be available in the system:
+- =direnv=
+- =pyenv=
+- =poetry=
+
+System dependencies that may be necessary for SciPy (via Pandas):
 : sudo apt-get install gfortran libopenblas-dev liblapack-dev python-dev
-* Architecture
-- Dash/Plotly
+
+Install the correct Python version:
+: pyenv install 3.9.10
+
+Clone it:
+: git clone git@github.com:rodelrod/better-roadmap.git
+
+Install it:
+: cd better-roadmap
+: direnv allow
+: poetry install
+
+* Stack
+- Charts via =Plotly=
+- =Plotly=-integrated, coded in Python, React SPA via =Dash=
+- CSS theme via =dash-bootstrap-components=
+- Yaml file validation via =pydantic=
+- Web server via =gunicorn=
+- Deployment via =CapRover/Docker=
+
+* Data protection
+The data is saved in the browser's local storage and is persistent between sessions. You can download and upload the Yaml files so that you can keep it in your own file system or share it with someone else. By not saving data in the server, you can be assured that your data is not kept out of your company's IT systems.
+
+All data is sent back to the server to calculate the automated scheduling but it is not stored in the server. Since Dash is a Python application the logic runs in the backend. If you need to be absolutely sure that the data is not stored in the server, I invite you to audit the code. Alternatively, you can host the application in a server where you're comfortable with having the data in clear.
