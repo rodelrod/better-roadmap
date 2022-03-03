@@ -78,20 +78,24 @@ class FeatureDateSpans:
 
     @classmethod
     def from_feature_sprint_spans(
-        cls, feature_sprint_spans: FeatureSprintSpans, project_start: date
+        cls,
+        feature_sprint_spans: FeatureSprintSpans,
+        project_start: date,
+        sprint_durations: list[SprintDuration] = None,
+        default_sprint_duration: int = 1,
     ):
         return cls(
             feature=feature_sprint_spans.feature,
             spans=[
-                DateSpan.from_sprint_span(sprint_span, project_start)
+                DateSpan.from_sprint_span(
+                    sprint_span,
+                    project_start,
+                    sprint_durations,
+                    default_sprint_duration,
+                )
                 for sprint_span in feature_sprint_spans.spans
             ],
         )
-
-    @classmethod
-    def from_elapsed_feature(cls, elapsed_feature: ElapsedFeature, project_start: date):
-        feature_sprint_spans = FeatureSprintSpans.from_elapsed_feature(elapsed_feature)
-        return cls.from_feature_sprint_spans(feature_sprint_spans, project_start)
 
     def get_graph_segments(self) -> list[GraphSegment]:
         return [

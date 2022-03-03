@@ -10,14 +10,14 @@ def sprint_to_end_date(
     sprint_durations: Optional[list[SprintDuration]] = None,
     default_sprint_duration: int = 1,
 ) -> date:
-    atypical_sprints = []
-    atypical_sprints_in_weeks = 0
+    abnormal_sprints = []
+    abnormal_sprints_in_weeks = 0
     if sprint_durations:
-        atypical_sprints = [sd for sd in sprint_durations if sd.number <= sprint]
-        atypical_sprints_in_weeks = sum(sd.duration for sd in atypical_sprints)
-    normal_sprints_in_weeks = (sprint - len(atypical_sprints)) * default_sprint_duration
+        abnormal_sprints = [sd for sd in sprint_durations if sd.number <= sprint]
+        abnormal_sprints_in_weeks = sum(sd.duration for sd in abnormal_sprints)
+    normal_sprints_in_weeks = (sprint - len(abnormal_sprints)) * default_sprint_duration
     return project_start + timedelta(
-        weeks=(atypical_sprints_in_weeks + normal_sprints_in_weeks)
+        weeks=(abnormal_sprints_in_weeks + normal_sprints_in_weeks)
     )
 
 
