@@ -61,8 +61,8 @@ def update_graph(
     prevent_initial_call=True,
 )
 def download_elapsed(_, elapsed_text: str):
-    today = date.today()
-    filename = f"elapsed_{today:%Y%m%dT%H%M}.yml"
+    now = datetime.now()
+    filename = f"elapsed_{now:%Y%m%dT%H%M}.yml"
     return {"content": elapsed_text, "filename": filename}
 
 
