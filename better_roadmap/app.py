@@ -1,6 +1,6 @@
 import os
 from base64 import b64decode
-from datetime import date, datetime
+from datetime import datetime
 from pathlib import Path
 
 import dash_bootstrap_components as dbc
@@ -42,6 +42,7 @@ def configure_app(someapp: Dash):
     Input("elapsed-update-button", "n_clicks"),
     Input("features-update-button", "n_clicks"),
     Input("parameters-update-button", "n_clicks"),
+    Input("select-chart-height", "value"),
 )
 def update_graph(
     elapsed_text,
@@ -50,8 +51,11 @@ def update_graph(
     _elapsed_clicks,
     _features_clicks,
     _parameters_clicks,
+    chart_height,
 ):
-    return RoadmapChart(elapsed_text, features_text, parameters_text).figure
+    fig = RoadmapChart(elapsed_text, features_text, parameters_text).figure
+    fig.update_layout(height=int(chart_height))
+    return fig
 
 
 @app.callback(

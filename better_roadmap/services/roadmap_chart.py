@@ -50,6 +50,7 @@ class RoadmapChart:
         ordered_elapsed_features,
         ordered_features,
     ) -> Figure:
+        ordered_all_features = ordered_elapsed_features + ordered_features
         fig = px.timeline(
             df,
             x_start="start",
@@ -61,7 +62,7 @@ class RoadmapChart:
             # This is necessary to ensure that the order of features in the YAML is respected
             category_orders={
                 "phase": ordered_phase_names,
-                "feature": ordered_elapsed_features + ordered_features,
+                "feature": ordered_all_features,
             },
         )
         fig.add_vline(x=date.today())
