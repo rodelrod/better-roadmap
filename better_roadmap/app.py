@@ -60,94 +60,54 @@ def update_graph(
     return fig
 
 
-@app.callback(
-    Output("elapsed-download", "data"),
-    Input("elapsed-download-button", "n_clicks"),
-    State("elapsed-textarea", "value"),
-    prevent_initial_call=True,
-)
-def download_elapsed(_, elapsed_text: str):
-    now = datetime.now()
-    filename = f"elapsed_{now:%Y%m%dT%H%M}.yml"
-    return {"content": elapsed_text, "filename": filename}
+def register_download_action(config_type):
+    @app.callback(
+        Output(f"{config_type}-download", "data"),
+        Input(f"{config_type}-download-button", "n_clicks"),
+        State(f"{config_type}-textarea", "value"),
+        prevent_initial_call=True,
+    )
+    def download_config(_, config_text: str):
+        now = datetime.now()
+        filename = f"{config_type}_{now:%Y%m%dT%H%M}.yml"
+        return {"content": config_text, "filename": filename}
 
 
-@app.callback(
-    Output("features-download", "data"),
-    Input("features-download-button", "n_clicks"),
-    State("features-textarea", "value"),
-    prevent_initial_call=True,
-)
-def download_features(_, features_text: str):
-    now = datetime.now()
-    filename = f"features_{now:%Y%m%dT%H%M}.yml"
-    return {"content": features_text, "filename": filename}
+def register_upload_action(config_type):
+    @app.callback(
+        Output(f"{config_type}-textarea", "value"),
+        Input(f"{config_type}-upload", "contents"),
+        prevent_initial_call=True,
+    )
+    def upload_config(content):
+        if not content:
+            return
+        _content_type, content_string = content.split(",")
+        return b64decode(content_string).decode("utf-8")
 
 
-@app.callback(
-    Output("parameters-download", "data"),
-    Input("parameters-download-button", "n_clicks"),
-    State("parameters-textarea", "value"),
-    prevent_initial_call=True,
-)
-def download_parameters(_, parameters_text: str):
-    now = datetime.now()
-    filename = f"parameters_{now:%Y%m%dT%H%M}.yml"
-    return {"content": parameters_text, "filename": filename}
+def register_config_validator(config_type):
+    @app.callback(
+        Output(f"{config_type}-textarea", "valid"),
+        Output(f"{config_type}-textarea", "invalid"),
+        Output(f"{config_type}-validation-alert", "is_open"),
+        Output(f"{config_type}-validation-alert-text", "children"),
+        State(f"{config_type}-textarea", "value"),
+        Input(f"{config_type}-textarea", "n_blur"),
+    )
+    def validate_config(config_text, _):
+        try:
+            ElapsedFeatureList.from_text(config_text)
+        except ParserError:
+            return False, True, True, "Yaml parsing error"
+        except ValidationError as e:
+            return False, True, True, str(e)
+        return True, False, False, ""
 
 
-@app.callback(
-    Output("elapsed-textarea", "value"),
-    Input("elapsed-upload", "contents"),
-    prevent_initial_call=True,
-)
-def upload_elapsed(content):
-    if not content:
-        return
-    _content_type, content_string = content.split(",")
-    return b64decode(content_string).decode("utf-8")
-
-
-@app.callback(
-    Output("features-textarea", "value"),
-    Input("features-upload", "contents"),
-    prevent_initial_call=True,
-)
-def upload_features(content):
-    if not content:
-        return
-    _content_type, content_string = content.split(",")
-    return b64decode(content_string).decode("utf-8")
-
-
-@app.callback(
-    Output("parameters-textarea", "value"),
-    Input("parameters-upload", "contents"),
-    prevent_initial_call=True,
-)
-def upload_parameters(content):
-    if not content:
-        return
-    _content_type, content_string = content.split(",")
-    return b64decode(content_string).decode("utf-8")
-
-
-@app.callback(
-    Output("elapsed-textarea", "valid"),
-    Output("elapsed-textarea", "invalid"),
-    Output("elapsed-validation-alert", "is_open"),
-    Output("elapsed-validation-alert-text", "children"),
-    State("elapsed-textarea", "value"),
-    Input("elapsed-textarea", "n_blur"),
-)
-def validate_elapsed_text(elapsed_text, _):
-    try:
-        ElapsedFeatureList.from_text(elapsed_text)
-    except ParserError:
-        return False, True, True, "Yaml parsing error"
-    except ValidationError as e:
-        return False, True, True, str(e)
-    return True, False, False, ""
-
+for config_type in ["elapsed", "features", "parameters"]:
+    register_download_action(config_type)
+    register_upload_action(config_type)
+    register_config_validator(config_type)
 
 configure_app(app)
