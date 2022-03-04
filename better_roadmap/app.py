@@ -41,18 +41,18 @@ def configure_app(someapp: Dash):
     State("elapsed-textarea", "value"),
     State("features-textarea", "value"),
     State("parameters-textarea", "value"),
-    Input("elapsed-update-button", "n_clicks"),
-    Input("features-update-button", "n_clicks"),
-    Input("parameters-update-button", "n_clicks"),
+    Input("elapsed-textarea", "n_blur"),
+    Input("features-textarea", "n_blur"),
+    Input("parameters-textarea", "n_blur"),
     Input("select-chart-height", "value"),
 )
 def update_graph(
     elapsed_text,
     features_text,
     parameters_text,
-    _elapsed_clicks,
-    _features_clicks,
-    _parameters_clicks,
+    _elapsed_blur,
+    _features_blur,
+    _parameters_blur,
     chart_height,
 ):
     fig = RoadmapChart(elapsed_text, features_text, parameters_text).figure
