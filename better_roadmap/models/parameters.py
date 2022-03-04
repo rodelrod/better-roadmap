@@ -6,6 +6,8 @@ from typing import Optional
 
 import yaml
 
+from .config_type import ConfigType
+
 
 APP_DIR = Path(os.getenv("APP_DIR", ".")).resolve()
 DEFAULT_PARAMETERS_FILE = APP_DIR / "data" / "default_parameters.yml"
@@ -25,7 +27,7 @@ class SprintDuration(BaseModel):
     duration: int
 
 
-class Parameters(BaseModel):
+class Parameters(ConfigType, BaseModel):
     project_start: date
     default_sprint_duration: int
     phases: list[Phase]
@@ -34,12 +36,12 @@ class Parameters(BaseModel):
     @classmethod
     def from_text(cls, parameters_text: Optional[str]):
         if not parameters_text:
-            parameters_text = cls.get_default_parameters_text()
+            parameters_text = cls.get_default_text()
         parameters_dict = yaml.safe_load(parameters_text)
         return cls(**parameters_dict)
 
     @staticmethod
-    def get_default_parameters_text() -> str:
+    def get_default_text() -> str:
         with DEFAULT_PARAMETERS_FILE.open() as parameters_file:
             default_parameters = parameters_file.read()
         return default_parameters

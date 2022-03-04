@@ -5,9 +5,10 @@ from pathlib import Path
 
 import dash_bootstrap_components as dbc
 from dash import Dash, Input, Output, State
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel
 from yaml.parser import ParserError
 
+from better_roadmap.models.config_type import ConfigType
 from better_roadmap.models.elapsed import ElapsedFeatureList
 from better_roadmap.models.features import FeatureList
 from better_roadmap.models.parameters import Parameters
@@ -30,9 +31,9 @@ def configure_app(someapp: Dash):
     fig = RoadmapChart().figure
     someapp.layout = layout(
         fig,
-        ElapsedFeatureList.get_default_elapsed_text(),
-        FeatureList.get_default_features_text(),
-        Parameters.get_default_parameters_text(),
+        ElapsedFeatureList.get_default_text(),
+        FeatureList.get_default_text(),
+        Parameters.get_default_text(),
     )
 
 
@@ -41,18 +42,18 @@ def configure_app(someapp: Dash):
     State("elapsed-textarea", "value"),
     State("features-textarea", "value"),
     State("parameters-textarea", "value"),
-    Input("elapsed-update-button", "n_clicks"),
-    Input("features-update-button", "n_clicks"),
-    Input("parameters-update-button", "n_clicks"),
+    Input("elapsed-textarea", "n_blur"),
+    Input("features-textarea", "n_blur"),
+    Input("parameters-textarea", "n_blur"),
     Input("select-chart-height", "value"),
 )
 def update_graph(
     elapsed_text,
     features_text,
     parameters_text,
-    _elapsed_clicks,
-    _features_clicks,
-    _parameters_clicks,
+    _elapsed_blur,
+    _features_blur,
+    _parameters_blur,
     chart_height,
 ):
     fig = RoadmapChart(elapsed_text, features_text, parameters_text).figure
@@ -60,94 +61,60 @@ def update_graph(
     return fig
 
 
-@app.callback(
-    Output("elapsed-download", "data"),
-    Input("elapsed-download-button", "n_clicks"),
-    State("elapsed-textarea", "value"),
-    prevent_initial_call=True,
-)
-def download_elapsed(_, elapsed_text: str):
-    now = datetime.now()
-    filename = f"elapsed_{now:%Y%m%dT%H%M}.yml"
-    return {"content": elapsed_text, "filename": filename}
+def register_download_action(config_type):
+    @app.callback(
+        Output(f"{config_type}-download", "data"),
+        Input(f"{config_type}-download-button", "n_clicks"),
+        State(f"{config_type}-textarea", "value"),
+        prevent_initial_call=True,
+    )
+    def download_config(_, config_text: str):
+        now = datetime.now()
+        filename = f"{config_type}_{now:%Y%m%dT%H%M}.yml"
+        return {"content": config_text, "filename": filename}
 
 
-@app.callback(
-    Output("features-download", "data"),
-    Input("features-download-button", "n_clicks"),
-    State("features-textarea", "value"),
-    prevent_initial_call=True,
-)
-def download_features(_, features_text: str):
-    now = datetime.now()
-    filename = f"features_{now:%Y%m%dT%H%M}.yml"
-    return {"content": features_text, "filename": filename}
+def register_upload_action(config_type):
+    @app.callback(
+        Output(f"{config_type}-textarea", "value"),
+        Input(f"{config_type}-upload", "contents"),
+        prevent_initial_call=True,
+    )
+    def upload_config(content):
+        if not content:
+            return
+        _content_type, content_string = content.split(",")
+        return b64decode(content_string).decode("utf-8")
 
 
-@app.callback(
-    Output("parameters-download", "data"),
-    Input("parameters-download-button", "n_clicks"),
-    State("parameters-textarea", "value"),
-    prevent_initial_call=True,
-)
-def download_parameters(_, parameters_text: str):
-    now = datetime.now()
-    filename = f"parameters_{now:%Y%m%dT%H%M}.yml"
-    return {"content": parameters_text, "filename": filename}
+def register_config_validator(config_type: str, config_model: ConfigType):
+    @app.callback(
+        Output(f"{config_type}-textarea", "valid"),
+        Output(f"{config_type}-textarea", "invalid"),
+        Output(f"{config_type}-validation-alert", "is_open"),
+        Output(f"{config_type}-validation-alert-text", "children"),
+        State(f"{config_type}-textarea", "value"),
+        Input(f"{config_type}-textarea", "n_blur"),
+    )
+    def validate_config(config_text: str, _):
+        try:
+            config_model.from_text(config_text)
+        except ParserError:
+            return False, True, True, "Yaml parsing error"
+        except ValidationError as e:
+            return False, True, True, str(e)
+        return True, False, False, ""
 
 
-@app.callback(
-    Output("elapsed-textarea", "value"),
-    Input("elapsed-upload", "contents"),
-    prevent_initial_call=True,
-)
-def upload_elapsed(content):
-    if not content:
-        return
-    _content_type, content_string = content.split(",")
-    return b64decode(content_string).decode("utf-8")
+CONFIG_MODELS = {
+    "elapsed": ElapsedFeatureList,
+    "features": FeatureList,
+    "parameters": Parameters,
+}
 
-
-@app.callback(
-    Output("features-textarea", "value"),
-    Input("features-upload", "contents"),
-    prevent_initial_call=True,
-)
-def upload_features(content):
-    if not content:
-        return
-    _content_type, content_string = content.split(",")
-    return b64decode(content_string).decode("utf-8")
-
-
-@app.callback(
-    Output("parameters-textarea", "value"),
-    Input("parameters-upload", "contents"),
-    prevent_initial_call=True,
-)
-def upload_parameters(content):
-    if not content:
-        return
-    _content_type, content_string = content.split(",")
-    return b64decode(content_string).decode("utf-8")
-
-
-@app.callback(
-    Output("elapsed-textarea", "valid"),
-    Output("elapsed-textarea", "invalid"),
-    Output("elapsed-validation-alert", "is_open"),
-    Output("elapsed-validation-alert-text", "children"),
-    State("elapsed-textarea", "value"),
-    Input("elapsed-textarea", "n_blur"),
-)
-def validate_elapsed_text(elapsed_text, _):
-    try:
-        ElapsedFeatureList.from_text(elapsed_text)
-    except ParserError:
-        return False, True, True, "Yaml parsing error"
-    except ValidationError as e:
-        return False, True, True, str(e)
-    return True, False, False, ""
-
+for config_type in ["elapsed", "features", "parameters"]:
+    register_download_action(config_type)
+    register_upload_action(config_type)
+    register_config_validator(config_type, CONFIG_MODELS[config_type])
 
 configure_app(app)

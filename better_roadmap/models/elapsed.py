@@ -1,8 +1,11 @@
 import os
+from collections import UserList
 from pathlib import Path
 
 import yaml
 from pydantic import BaseModel
+
+from .config_type import ConfigType
 
 APP_DIR = Path(os.getenv("APP_DIR", ".")).resolve()
 DEFAULT_ELAPSED_FILE = APP_DIR / "data" / "default_elapsed.yml"
@@ -18,16 +21,16 @@ class ElapsedFeature(BaseModel):
     elapsed: dict[str, ElapsedSprintSpan]
 
 
-class ElapsedFeatureList(list[ElapsedFeature]):
+class ElapsedFeatureList(ConfigType, UserList[ElapsedFeature]):
     @classmethod
     def from_text(cls, elapsed_text):
         if not elapsed_text:
-            elapsed_text = cls.get_default_elapsed_text()
+            elapsed_text = cls.get_default_text()
         elapsed_as_dict = yaml.safe_load(elapsed_text)
         return [ElapsedFeature(**a) for a in elapsed_as_dict]
 
     @staticmethod
-    def get_default_elapsed_text() -> str:
+    def get_default_text() -> str:
         with DEFAULT_ELAPSED_FILE.open() as elapsed_file:
             default_elapsed = elapsed_file.read()
         return default_elapsed
