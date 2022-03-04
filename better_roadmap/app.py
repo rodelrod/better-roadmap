@@ -5,9 +5,10 @@ from pathlib import Path
 
 import dash_bootstrap_components as dbc
 from dash import Dash, Input, Output, State
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel
 from yaml.parser import ParserError
 
+from better_roadmap.models.config_type import ConfigType
 from better_roadmap.models.elapsed import ElapsedFeatureList
 from better_roadmap.models.features import FeatureList
 from better_roadmap.models.parameters import Parameters
@@ -30,9 +31,9 @@ def configure_app(someapp: Dash):
     fig = RoadmapChart().figure
     someapp.layout = layout(
         fig,
-        ElapsedFeatureList.get_default_elapsed_text(),
-        FeatureList.get_default_features_text(),
-        Parameters.get_default_parameters_text(),
+        ElapsedFeatureList.get_default_text(),
+        FeatureList.get_default_text(),
+        Parameters.get_default_text(),
     )
 
 
@@ -86,7 +87,7 @@ def register_upload_action(config_type):
         return b64decode(content_string).decode("utf-8")
 
 
-def register_config_validator(config_type):
+def register_config_validator(config_type: str, config_model: ConfigType):
     @app.callback(
         Output(f"{config_type}-textarea", "valid"),
         Output(f"{config_type}-textarea", "invalid"),
@@ -95,9 +96,9 @@ def register_config_validator(config_type):
         State(f"{config_type}-textarea", "value"),
         Input(f"{config_type}-textarea", "n_blur"),
     )
-    def validate_config(config_text, _):
+    def validate_config(config_text: str, _):
         try:
-            ElapsedFeatureList.from_text(config_text)
+            config_model.from_text(config_text)
         except ParserError:
             return False, True, True, "Yaml parsing error"
         except ValidationError as e:
@@ -105,9 +106,15 @@ def register_config_validator(config_type):
         return True, False, False, ""
 
 
+CONFIG_MODELS = {
+    "elapsed": ElapsedFeatureList,
+    "features": FeatureList,
+    "parameters": Parameters,
+}
+
 for config_type in ["elapsed", "features", "parameters"]:
     register_download_action(config_type)
     register_upload_action(config_type)
-    register_config_validator(config_type)
+    register_config_validator(config_type, CONFIG_MODELS[config_type])
 
 configure_app(app)

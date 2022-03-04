@@ -17,13 +17,13 @@ class FeatureList(list[Feature]):
     @classmethod
     def from_text(cls, features_text):
         if not features_text:
-            features_text = cls.get_default_features_text()
+            features_text = cls.get_default_text()
         feature_dicts = yaml.safe_load(features_text)
         features = [Feature(**d) for d in feature_dicts]
         return features
 
     @staticmethod
-    def get_default_features_text() -> str:
+    def get_default_text() -> str:
         with DEFAULT_FEATURES_FILE.open() as features_file:
             default_features = features_file.read()
         return default_features

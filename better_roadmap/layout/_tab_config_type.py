@@ -2,7 +2,7 @@ import dash_bootstrap_components as dbc
 from dash import dcc, html
 
 
-def tab_elapsed(elapsed_text: str) -> dbc.Tab:
+def tab_config_type(config_type: str, config_text: str, label: str) -> dbc.Tab:
 
     return dbc.Tab(
         dbc.Card(
@@ -11,13 +11,13 @@ def tab_elapsed(elapsed_text: str) -> dbc.Tab:
                     dbc.Row(
                         [
                             dbc.Col(
-                                elapsed_textarea(elapsed_text),
+                                config_type_textarea(config_type, config_text),
                             ),
                             dbc.Col(
                                 [
-                                    elapsed_update_download_buttons(),
-                                    elapsed_download_button(),
-                                    elapsed_validation_alert(),
+                                    config_type_update_download_buttons(config_type),
+                                    config_type_download_button(config_type),
+                                    config_type_validation_alert(config_type),
                                 ]
                             ),
                         ],
@@ -26,21 +26,21 @@ def tab_elapsed(elapsed_text: str) -> dbc.Tab:
             ),
             style={"borderTop": "none"},
         ),
-        label="✅ Elapsed Sprints",
+        label=label,
     )
 
 
-def elapsed_textarea(elapsed_text: str) -> dbc.Textarea:
+def config_type_textarea(config_type: str, config_text: str) -> dbc.Textarea:
     return dbc.Textarea(
-        id="elapsed-textarea",
-        value=elapsed_text,
+        id=f"{config_type}-textarea",
+        value=config_text,
         rows=30,
         persistence=True,
         persistence_type="local",
     )
 
 
-def elapsed_update_download_buttons():
+def config_type_update_download_buttons(config_type: str):
     return dbc.Row(
         dbc.ButtonGroup(
             [
@@ -51,11 +51,11 @@ def elapsed_update_download_buttons():
                             html.I(className="bi bi-bar-chart-steps ms-2"),
                         ]
                     ),
-                    id="elapsed-update-button",
+                    id=f"{config_type}-update-button",
                     n_clicks=0,
                     className="btn-lg",
                 ),
-                dcc.Download(id="elapsed-download"),
+                dcc.Download(id=f"{config_type}-download"),
                 dbc.Button(
                     html.Span(
                         [
@@ -63,7 +63,7 @@ def elapsed_update_download_buttons():
                             html.I(className="bi bi-download ms-2"),
                         ]
                     ),
-                    id="elapsed-download-button",
+                    id=f"{config_type}-download-button",
                     n_clicks=0,
                     className="btn-lg",
                 ),
@@ -72,7 +72,7 @@ def elapsed_update_download_buttons():
     )
 
 
-def elapsed_download_button():
+def config_type_download_button(config_type: str):
     return dbc.Row(
         className="mt-3",
         children=dbc.Col(
@@ -81,7 +81,7 @@ def elapsed_download_button():
                 color="primary",
                 className="text-center d-grid gap-2 col-8 mx-auto",
                 children=dcc.Upload(
-                    id="elapsed-upload",
+                    id=f"{config_type}-upload",
                     children=[
                         html.I(
                             className="bi bi-cloud-upload me-2",
@@ -96,18 +96,20 @@ def elapsed_download_button():
     )
 
 
-def elapsed_validation_alert():
+def config_type_validation_alert(config_type: str):
     return dbc.Row(
         className="mt-4",
         children=[
             dbc.Alert(
                 [
                     html.H4("Validation error", className="alert-heading"),
-                    html.P("", id="elapsed-validation-alert-text", className="mb-0"),
+                    html.P(
+                        "", id=f"{config_type}-validation-alert-text", className="mb-0"
+                    ),
                 ],
                 is_open=False,
                 color="danger",
-                id="elapsed-validation-alert",
+                id=f"{config_type}-validation-alert",
             )
         ],
     )
