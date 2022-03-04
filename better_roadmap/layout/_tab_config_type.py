@@ -15,8 +15,8 @@ def tab_config_type(config_type: str, config_text: str, label: str) -> dbc.Tab:
                             ),
                             dbc.Col(
                                 [
-                                    config_type_update_download_buttons(config_type),
                                     config_type_download_button(config_type),
+                                    config_type_upload_button(config_type),
                                     config_type_validation_alert(config_type),
                                 ]
                             ),
@@ -40,21 +40,10 @@ def config_type_textarea(config_type: str, config_text: str) -> dbc.Textarea:
     )
 
 
-def config_type_update_download_buttons(config_type: str):
+def config_type_download_button(config_type: str):
     return dbc.Row(
-        dbc.ButtonGroup(
+        dbc.Col(
             [
-                dbc.Button(
-                    html.Span(
-                        [
-                            "Update",
-                            html.I(className="bi bi-bar-chart-steps ms-2"),
-                        ]
-                    ),
-                    id=f"{config_type}-update-button",
-                    n_clicks=0,
-                    className="btn-lg",
-                ),
                 dcc.Download(id=f"{config_type}-download"),
                 dbc.Button(
                     html.Span(
@@ -65,14 +54,14 @@ def config_type_update_download_buttons(config_type: str):
                     ),
                     id=f"{config_type}-download-button",
                     n_clicks=0,
-                    className="btn-lg",
+                    className="btn-lg d-grid col-8 mx-auto",
                 ),
             ]
-        ),
+        )
     )
 
 
-def config_type_download_button(config_type: str):
+def config_type_upload_button(config_type: str):
     return dbc.Row(
         className="mt-3",
         children=dbc.Col(
@@ -87,6 +76,8 @@ def config_type_download_button(config_type: str):
                             className="bi bi-cloud-upload me-2",
                             style={"fontSize": "xx-large"},
                         ),
+                        html.Br(),
+                        html.B("Upload", style={"fontSize": "large"}),
                         html.Br(),
                         "drag & drop or select file",
                     ],
