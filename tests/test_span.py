@@ -3,9 +3,9 @@ import better_roadmap.models.span as sut
 from datetime import date
 
 
-class TestScheduledSpan:
-    def test_sprint_to_date_spans(self):
-        sss = sut.FeatureSprintSpans(
+class TestFeatureDateSpans:
+    def test_convert_sprint_to_date_spans_with_normal_sprints_only(self):
+        fss = sut.FeatureSprintSpans(
             feature="Skynet",
             spans=[
                 sut.SprintSpan(phase="ux", start=1, end=3),
@@ -13,7 +13,7 @@ class TestScheduledSpan:
                 sut.SprintSpan(phase="dev", start=6, end=8),
             ],
         )
-        sts = sut.FeatureDateSpans(
+        fds = sut.FeatureDateSpans(
             feature="Skynet",
             spans=[
                 sut.DateSpan("ux", date(2022, 1, 6), date(2022, 1, 27)),
@@ -22,5 +22,11 @@ class TestScheduledSpan:
             ],
         )
         assert (
-            sut.FeatureDateSpans.from_feature_sprint_spans(sss, date(2022, 1, 6)) == sts
+            sut.FeatureDateSpans.from_feature_sprint_spans(
+                feature_sprint_spans=fss,
+                project_start=date(2022, 1, 6),
+                sprint_durations=[],
+                default_sprint_duration=1,
+            ) == fds
         )
+
