@@ -5,7 +5,7 @@ from pathlib import Path
 
 import dash_bootstrap_components as dbc
 from dash import Dash, Input, Output, State
-from pydantic import ValidationError, BaseModel
+from pydantic import ValidationError
 from yaml.parser import ParserError
 
 from better_roadmap.models.config_type import ConfigType
