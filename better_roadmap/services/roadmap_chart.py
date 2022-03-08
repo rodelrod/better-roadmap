@@ -41,6 +41,8 @@ class RoadmapChart:
             ordered_phase_names,
             ordered_elapsed_features,
             ordered_features,
+            parameters.project_start,
+            parameters.next_milestone,
         )
 
     @staticmethod
@@ -49,6 +51,8 @@ class RoadmapChart:
         ordered_phase_names,
         ordered_elapsed_features,
         ordered_features,
+        project_start: date,
+        next_milestone: Optional[date],
     ) -> Figure:
         ordered_all_features = ordered_elapsed_features + ordered_features
         fig = px.timeline(
@@ -65,7 +69,10 @@ class RoadmapChart:
                 "feature": ordered_all_features,
             },
         )
-        fig.add_vline(x=date.today())
+        fig.add_vline(x=project_start, line_color="green")
+        fig.add_vline(x=date.today(), line_dash="dash", line_color="grey")
+        if next_milestone:
+            fig.add_vline(x=next_milestone, line_dash="dash", line_color="orange")
         return fig
 
     @staticmethod

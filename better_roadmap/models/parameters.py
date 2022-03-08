@@ -32,6 +32,7 @@ class Parameters(ConfigType, BaseModel):
     default_sprint_duration: int
     phases: list[Phase]
     sprint_durations: Optional[list[SprintDuration]] = None
+    next_milestone: Optional[date] = None
 
     @classmethod
     def from_text(cls, parameters_text: Optional[str]):
