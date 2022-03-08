@@ -5,7 +5,7 @@ from pathlib import Path
 
 import dash_bootstrap_components as dbc
 from dash import Dash, Input, Output, State
-from pydantic import ValidationError, BaseModel
+from pydantic import ValidationError
 from yaml.parser import ParserError
 
 from better_roadmap.models.config_type import ConfigType
@@ -42,19 +42,21 @@ def configure_app(someapp: Dash):
     State("elapsed-textarea", "value"),
     State("features-textarea", "value"),
     State("parameters-textarea", "value"),
+    Input("select-chart-height", "value"),
     Input("elapsed-textarea", "n_blur"),
     Input("features-textarea", "n_blur"),
     Input("parameters-textarea", "n_blur"),
-    Input("select-chart-height", "value"),
+    Input("update-chart-button", "n_clicks")
 )
 def update_graph(
     elapsed_text,
     features_text,
     parameters_text,
+    chart_height,
     _elapsed_blur,
     _features_blur,
     _parameters_blur,
-    chart_height,
+    _update_clicks,
 ):
     fig = RoadmapChart(elapsed_text, features_text, parameters_text).figure
     fig.update_layout(height=int(chart_height))

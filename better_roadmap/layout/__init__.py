@@ -25,6 +25,12 @@ def layout(
                     """,
                     className="lead",
                 ),
+                dbc.Button(
+                    "Update Chart",
+                    color="primary",
+                    id="update-chart-button",
+                    className="me-1 float-end",
+                ),
                 dbc.Tabs(
                     [
                         tab_chart(roadmap_chart),
