@@ -15,6 +15,8 @@ class GraphSegment:
     start: date
     end: date
     phase: str
+    sprint_start: int
+    sprint_end: int
 
 
 @dataclass
@@ -45,6 +47,8 @@ class DateSpan:
     phase: str
     start: date
     end: date
+    sprint_start: int
+    sprint_end: int
 
     @classmethod
     def from_sprint_span(
@@ -68,6 +72,8 @@ class DateSpan:
                 sprint_durations,
                 default_sprint_duration,
             ),
+            sprint_start = sprint_span.start,
+            sprint_end = sprint_span.end,
         )
 
 
@@ -100,7 +106,7 @@ class FeatureDateSpans:
     def get_graph_segments(self) -> list[GraphSegment]:
         return [
             GraphSegment(
-                feature=self.feature, start=span.start, end=span.end, phase=span.phase
+                feature=self.feature, start=span.start, end=span.end, phase=span.phase, sprint_start=span.sprint_start, sprint_end=span.sprint_end
             )
             for span in self.spans
         ]

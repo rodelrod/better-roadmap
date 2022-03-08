@@ -68,6 +68,8 @@ class RoadmapChart:
                 "phase": ordered_phase_names,
                 "feature": ordered_all_features,
             },
+            hover_data=["phase", "sprint_start", "sprint_end", "start", "end"],
+            hover_name="feature",
         )
         fig.add_vline(x=project_start, line_color="green")
         fig.add_vline(x=date.today(), line_dash="dash", line_color="grey")
