@@ -73,6 +73,7 @@ class RoadmapChart:
         )
         fig.add_vline(x=project_start, line_color="green")
         fig.add_vline(x=date.today(), line_dash="dash", line_color="grey")
+        fig.update_yaxes(showspikes=True)
         if next_milestone:
             fig.add_vline(x=next_milestone, line_dash="dash", line_color="orange")
         return fig
