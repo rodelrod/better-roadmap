@@ -16,7 +16,6 @@ def tab_config_type(config_type: str, config_text: str, label: str) -> dbc.Tab:
                             dbc.Col(
                                 [
                                     config_type_download_button(config_type),
-                                    config_type_upload_button(config_type),
                                     config_type_validation_alert(config_type),
                                 ]
                             ),
@@ -58,32 +57,6 @@ def config_type_download_button(config_type: str):
                 ),
             ]
         )
-    )
-
-
-def config_type_upload_button(config_type: str):
-    return dbc.Row(
-        className="mt-3",
-        children=dbc.Col(
-            dbc.Button(
-                outline=True,
-                color="primary",
-                className="text-center d-grid gap-2 col-8 mx-auto",
-                children=dcc.Upload(
-                    id=f"{config_type}-upload",
-                    children=[
-                        html.I(
-                            className="bi bi-cloud-upload me-2",
-                            style={"fontSize": "xx-large"},
-                        ),
-                        html.Br(),
-                        html.B("Upload", style={"fontSize": "large"}),
-                        html.Br(),
-                        "drag & drop or select file",
-                    ],
-                ),
-            ),
-        ),
     )
 
 

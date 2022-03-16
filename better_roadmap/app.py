@@ -87,19 +87,6 @@ def register_download_action(config_type):
         return {"content": config_text, "filename": filename}
 
 
-def register_upload_action(config_type):
-    @app.callback(
-        Output(f"{config_type}-textarea", "value"),
-        Input(f"{config_type}-upload", "contents"),
-        prevent_initial_call=True,
-    )
-    def upload_config(content):
-        if not content:
-            return
-        _content_type, content_string = content.split(",")
-        return b64decode(content_string).decode("utf-8")
-
-
 def register_config_validator(config_type: str, config_model: ConfigType):
     @app.callback(
         Output(f"{config_type}-textarea", "valid"),
@@ -127,7 +114,6 @@ CONFIG_MODELS = {
 
 for config_type in ["elapsed", "features", "parameters"]:
     register_download_action(config_type)
-    register_upload_action(config_type)
     register_config_validator(config_type, CONFIG_MODELS[config_type])
 
 configure_app(app)
