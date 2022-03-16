@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 import dash_bootstrap_components as dbc
-from dash import Dash, Input, Output, State
+from dash import Dash, Input, Output, State, ClientsideFunction
 from pydantic import ValidationError
 from yaml.parser import ParserError
 
@@ -46,7 +46,7 @@ def configure_app(someapp: Dash):
     Input("elapsed-textarea", "n_blur"),
     Input("features-textarea", "n_blur"),
     Input("parameters-textarea", "n_blur"),
-    Input("update-chart-button", "n_clicks")
+    Input("update-chart-button", "n_clicks"),
 )
 def update_graph(
     elapsed_text,
@@ -61,6 +61,17 @@ def update_graph(
     fig = RoadmapChart(elapsed_text, features_text, parameters_text).figure
     fig.update_layout(height=int(chart_height))
     return fig
+
+
+app.clientside_callback(
+    ClientsideFunction(
+        namespace="clientside",
+        function_name="feature_search",
+    ),
+    Output("search-dummy-output", "children"),
+    Input("search-features-input", "value"),
+    prevent_initial_call=True,
+)
 
 
 def register_download_action(config_type):
