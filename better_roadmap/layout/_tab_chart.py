@@ -5,27 +5,25 @@ from plotly.graph_objects import Figure
 
 def search_features():
     return [
+        dbc.Label("🔍", html_for="search-features-input", width="auto"),
         dbc.Col(
             [
                 dbc.Input(
                     id="search-features-input",
-                    placeholder="🔍  Search features…",
+                    placeholder="Search features…",
                     type="text",
                     debounce=True,
                 ),
                 html.Div(id="search-dummy-output", hidden=True),
             ],
             width=4,
-        )
+        ),
     ]
 
 
 def select_chart_height():
     return [
-        dbc.Col(
-            dbc.Label("Chart height", html_for="select-chart-height"),
-            width=2,
-        ),
+        dbc.Label("Chart height:", html_for="select-chart-height", width="auto"),
         dbc.Col(
             dbc.Select(
                 id="select-chart-height",
@@ -35,7 +33,7 @@ def select_chart_height():
                     {"label": "L", "value": 1100},
                     {"label": "XL", "value": 1500},
                 ],
-                value=720,
+                value=1100,
             ),
             width=2,
         ),
@@ -47,9 +45,8 @@ def tab_chart(fig: Figure) -> dbc.Tab:
         dbc.Card(
             dbc.CardBody(
                 [
-                    dbc.Row(search_features()),
+                    dbc.Row(search_features() + select_chart_height()),
                     dcc.Graph(id="roadmap-graph", figure=fig),
-                    dbc.Row(select_chart_height()),
                 ]
             ),
             style={"borderTop": "none"},
