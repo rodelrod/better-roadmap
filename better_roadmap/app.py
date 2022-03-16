@@ -46,7 +46,6 @@ def configure_app(someapp: Dash):
     Input("elapsed-textarea", "n_blur"),
     Input("features-textarea", "n_blur"),
     Input("parameters-textarea", "n_blur"),
-    Input("update-chart-button", "n_clicks"),
 )
 def update_graph(
     elapsed_text,
@@ -56,7 +55,6 @@ def update_graph(
     _elapsed_blur,
     _features_blur,
     _parameters_blur,
-    _update_clicks,
 ):
     fig = RoadmapChart(elapsed_text, features_text, parameters_text).figure
     fig.update_layout(height=int(chart_height))
