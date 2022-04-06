@@ -32,6 +32,7 @@ def select_chart_height():
                     {"label": "M", "value": 720},
                     {"label": "L", "value": 1100},
                     {"label": "XL", "value": 1500},
+                    {"label": "XXL", "value": 2000},
                 ],
                 value=1100,
             ),
